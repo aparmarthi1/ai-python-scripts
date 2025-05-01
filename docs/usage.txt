@@ -1,0 +1,17 @@
+Usage Instructions for AI Python Scripts
+
+1. summary.py
+- Purpose: Summarizes text files using LLaMA 3.2.
+- Command: python scripts/summary.py <input_file>
+- Example: python scripts/summary.py sample.txt
+- Output: Saves summary to summary_<input_file>
+
+2. inconsistency_finder.py
+- Purpose: Finds numerical/temporal inconsistencies in text files.
+- Command: python scripts/inconsistency_finder.py "<file_pattern>"
+- Example: python scripts/inconsistency_finder.py "sample*.txt"
+- Output: Prints inconsistencies to console.
+
+Requirements:
+- Install dependencies: pip install python-docx ollama requests
+- Ensure Ollama server is running: ollama serve > /dev/null 2>&1 &
