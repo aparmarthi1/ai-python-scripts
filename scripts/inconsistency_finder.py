@@ -1,3 +1,71 @@
+#!/usr/bin/env python3
+
+"""
+Script Name: inconsistency_finder.py
+
+Description:
+This script detects inconsistencies in numerical or temporal values (e.g., number of days, quantities) within return policy statements across text documents in the current directory using a locally installed Ollama model.
+It processes files matching a specified wildcard pattern (e.g., '*.txt', '*.docx') and compares pairs of relevant lines (those mentioning 'return policy') to identify discrepancies, such as differing return periods.
+Results are printed to the terminal, detailing the files, line numbers, conflicting text, and an explanation of the inconsistency.
+
+Functionality:
+- Supports file formats: .txt, .docx.
+- Filters lines explicitly mentioning 'return policy' for comparison.
+- Uses Ollama's local LLM to compare numerical/temporal values, ignoring differences in wording or procedural steps.
+- Reports only inconsistencies involving numbers or time (e.g., '30 days' vs. '60 days').
+
+Arguments:
+- pattern (required): Wildcard pattern for files to analyze (e.g., '*.txt', '*.docx').
+  Example: '*.docx' to process all .docx files.
+
+Usage:
+Run the script from the command line in the directory containing the files to analyze.
+Examples:
+    python inconsistency_finder.py *.txt       # Analyze all *.txt files
+    python inconsistency_finder.py *.docx      # Analyze all *.docx files
+    python inconsistency_finder.py policy*.txt # Analyze files matching policy*.txt
+    python inconsistency_finder.py -h          # Show help message
+
+Python Version:
+- Written for Python 3.12
+- Compatible with Python 3.8 or higher
+- Verify with: python3 --version
+- Install Python: https://www.python.org/downloads/
+
+Required Python Libraries:
+- ollama: Interface with Ollama's local LLM
+- python-docx: Read .docx files
+- requests: Check Ollama server status
+- itertools: Generate combinations for file comparisons
+- re: Regular expression processing for post-processing results
+Install libraries in a virtual environment:
+    python3 -m venv venv
+    source venv/bin/activate  # On macOS/Linux
+    pip install ollama python-docx requests
+
+LLM Model:
+- Default model: llama3.2
+- Alternative models: Any Ollama-compatible model (e.g., llama3.1, mistral)
+- Note: The model is hardcoded as 'llama3.2' in the script. To use a different model, modify the 'check_inconsistency' function or add a --model argument.
+
+Ollama Installation and Setup:
+1. Install Ollama:
+   - Download from https://ollama.ai/download (macOS/Linux/Windows)
+   - Follow installation instructions for your OS
+2. Pull the model:
+    ollama pull llama3.2
+3. Start the Ollama server in the background:
+    ollama serve > /dev/null 2>&1 &
+4. Verify the server is running:
+    curl http://localhost:11434  # Should return "Ollama is running"
+5. Check port 11434:
+    lsof -i :11434
+   If in use, kill the process: kill <PID>, then restart the server
+6. Confirm Ollama process:
+    ps aux | grep ollama
+Note: The Ollama server must be running before executing the script.
+"""
+
 import argparse
 import glob
 import os
