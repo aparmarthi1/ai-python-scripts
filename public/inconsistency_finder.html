@@ -3,16 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="AI Python Solutions offers Python scripts for secure, locally installed LLMs to automate tasks and ensure data privacy.">
-    <meta name="keywords" content="AI, LLMs, Python, data security, automation, open-source">
+    <meta name="description" content="View and download the Inconsistency Finder Python script for detecting numerical or temporal inconsistencies in return policy statements using local LLMs.">
+    <meta name="keywords" content="Python, AI, LLM, inconsistency detection, return policy, Ollama">
     <meta name="author" content="AI Python Solutions">
-    <title>AI Python Solutions - Secure, Local AI with LLMs</title>
+    <title>Inconsistency Finder Script - AI Python Solutions</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" rel="stylesheet" />
     <style>
         body {
             font-family: Arial, sans-serif;
             line-height: 1.6;
             color: #333;
-            max-width: 1200px;
+            max-width: 800px;
             margin: 0 auto;
             padding: 20px;
             background-color: #f9f9f9;
@@ -23,122 +24,101 @@
         }
         h1 {
             color: #2c3e50;
-            font-size: 2.2em;
+            font-size: 2em;
         }
-        h2 {
-            color: #34495e;
-            font-size: 1.8em;
-            margin-top: 30px;
+        #docs {
+            background: #f0f0f0;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            font-size: 0.95em;
+            white-space: pre-wrap;
         }
-        h3 {
-            color: #34495e;
-            font-size: 1.5em;
+        pre {
+            background: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-size: 0.9em;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        button, a.download-btn {
+            background: #3498db;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 10px;
             margin-bottom: 15px;
+            text-decoration: none;
+            display: inline-block;
         }
-        p {
-            margin: 15px 0;
-            font-size: 1.1em;
+        button:hover, a.download-btn:hover {
+            background: #2980b9;
         }
-        a {
+        a.back-link {
             color: #3498db;
             text-decoration: none;
         }
-        a:hover {
+        a.back-link:hover {
             text-decoration: underline;
         }
-        ul {
-            margin: 15px 0;
-            padding-left: 20px;
-        }
-        li {
-            margin-bottom: 10px;
-        }
-        .container {
-            display: flex;
-            gap: 20px;
-        }
-        .main-content {
-            flex: 3;
-            background: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
-        .sidebar {
-            flex: 1;
-            background: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
-        .sidebar ul {
-            padding-left: 0;
-            list-style: none;
-        }
-        .sidebar li {
-            margin-bottom: 10px;
-        }
-        @media (max-width: 800px) {
-            .container {
-                flex-direction: column;
-            }
-            .main-content, .sidebar {
-                flex: 1;
-            }
-        }
-        @media (max-width: 600px) {
-            body {
-                padding: 10px;
-            }
-            h1 {
-                font-size: 1.8em;
-            }
-            h2 {
-                font-size: 1.5em;
-            }
+        .error {
+            color: #d32f2f;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
     <header>
-        <h1>Welcome to AI Python Solutions</h1>
+        <h1>Inconsistency Finder Script</h1>
+        <p><a class="back-link" href="/">Back to Home</a></p>
     </header>
-    <div class="container">
-        <div class="main-content" role="main">
-            <h2>Harnessing the Power of Locally Installed LLMs for Secure, Cost-Effective AI Solutions</h2>
-            <p>Artificial Intelligence (AI) is transforming industries, enabling businesses and individuals to solve complex problems, automate tasks, and unlock new opportunities. At the heart of this revolution are Large Language Models (LLMs), powerful AI systems capable of understanding and generating human-like text. While cloud-based AI services are popular, locally installed LLMs—models hosted on your own hardware—offer unique advantages, particularly in scenarios where <strong>data security</strong>, <strong>customization</strong>, and <strong>cost efficiency</strong> are paramount. At <a href="https://ai-python-solutions.com">AI Python Solutions</a>, we empower users with Python-based scripts to leverage these models, providing flexible, open-source solutions that can be adopted as-is or tailored to specific use cases.</p>
-            <h2>Why Choose Locally Installed LLMs?</h2>
-            <p>Locally installed LLMs run on your own hardware, such as desktops, servers, or high-performance computing clusters, rather than relying on external cloud providers. This approach offers several key benefits:</p>
-            <ul>
-                <li><strong>Enhanced Data Security and Privacy</strong>: In industries like healthcare, finance, and legal services, data security is non-negotiable. Cloud-based AI services often require uploading sensitive data to third-party servers, raising concerns about compliance with regulations like HIPAA, GDPR, or CCPA. Locally installed LLMs keep your data on-premises, ensuring full control over sensitive information.</li>
-                <li><strong>Cost Efficiency Through Automation</strong>: AI automation powered by local LLMs can significantly reduce operational costs. By automating repetitive tasks—such as customer support, data analysis, or content generation—businesses can save on labor and infrastructure expenses.</li>
-                <li><strong>Customization and Flexibility</strong>: Local LLMs allow developers to fine-tune models for specific tasks, such as generating domain-specific content or analyzing proprietary datasets.</li>
-                <li><strong>Offline Capabilities</strong>: In environments with limited or no internet access, local LLMs provide uninterrupted AI functionality.</li>
-            </ul>
-            <h2>Free US-Based LLMs and Their Resource Requirements</h2>
-            <p>Several high-quality, open-source LLMs developed by US-based organizations are freely available for local installation. Below is a selection of popular models, their use cases, and the hardware requirements for running them effectively:</p>
-            <ul>
-                <li><strong>Grok (xAI)</strong>: Ideal for research, education, and general-purpose AI tasks. Requires 8GB RAM and a modest GPU for testing, or 16–32GB RAM and a high-end GPU for advanced use.</li>
-                <li><strong>LLaMA Models (Meta AI)</strong>: Efficient for natural language processing and chatbot development. Requires 16GB RAM and a GPU with 8GB VRAM for smaller models, or 64GB RAM and multi-GPU setups for larger models.</li>
-                <li><strong>Mistral (Mistral AI, US Operations)</strong>: Optimized for real-time applications like customer support bots. Requires 12GB RAM and a GPU with 6GB VRAM for testing, or 32–64GB RAM for larger variants.</li>
-            </ul>
-            <p>For testing, many LLMs can run on consumer-grade desktops with mid-range GPUs. Large-scale LLMs require powerful hardware, such as enterprise-grade servers with multiple high-end GPUs.</p>
-            <h2>Why Python for Locally Installed LLMs?</h2>
-            <p>Python is the language of choice for AI development due to its versatility, robust ecosystem, and community support. Frameworks like Hugging Face’s Transformers and PyTorch simplify LLM deployment, while Python’s clear syntax ensures accessibility for all skill levels. At <a href="https://ai-python-solutions.com">AI Python Solutions</a>, we provide Python scripts for tasks like automated customer support, text summarization, code generation, sentiment analysis, and data anonymization.</p>
-            <h2>The Cost-Saving Power of AI Automation</h2>
-            <p>Locally installed LLMs drive significant cost savings by automating repetitive tasks, eliminating cloud subscription fees, and offering scalable solutions. This democratizes access to advanced AI for small businesses and individuals.</p>
-            <h2>Getting Started with AI Python Solutions</h2>
-            <p>Our mission is to make AI accessible, secure, and practical. Explore our Python scripts on <a href="https://github.com/aparmarthi1/ai-python-scripts">GitHub</a>, select a free LLM, and start building. Our scripts are modular, allowing you to adapt them for industry-specific applications.</p>
-            <h2>Conclusion</h2>
-            <p>Locally installed LLMs offer a secure, cost-effective, and customizable approach to AI. With free US-based models and Python’s AI ecosystem, anyone can build sophisticated solutions. At <a href="https://ai-python-solutions.com">AI Python Solutions</a>, we provide the tools to help you succeed—securely, affordably, and on your terms.</p>
-        </div>
-        <div class="sidebar" role="complementary">
-            <h3>Python AI Scripts</h3>
-            <ul>
-                <li><a href="/summary.html">Text Summarizer</a></li>
-                <li><a href="/inconsistency_finder.html">Inconsistency Finder</a></li>
-            </ul>
-        </div>
+    <div role="main">
+        <button onclick="copyCode()">Copy to Clipboard</button>
+        <a class="download-btn" href="https://raw.githubusercontent.com/aparmarthi1/ai-python-scripts/main/scripts/inconsistency_finder.py" download>Download Script</a>
+        <div id="docs">Loading documentation...</div>
+        <pre><code class="language-python" id="code">Loading script...</code></pre>
     </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <script>
+        async function fetchWithRetry(url, retries = 3, delay = 1000) {
+            for (let i = 0; i < retries; i++) {
+                try {
+                    const response = await fetch(url);
+                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                    return await response.text();
+                } catch (error) {
+                    if (i === retries - 1) throw error;
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                }
+            }
+        }
+
+        fetchWithRetry('https://raw.githubusercontent.com/aparmarthi1/ai-python-scripts/main/scripts/inconsistency_finder.py')
+            .then(data => {
+                const lines = data.split('\n');
+                let startIndex = lines.indexOf('"""');
+                let endIndex = startIndex !== -1 ? lines.indexOf('"""', startIndex + 1) : -1;
+                const docLines = (startIndex !== -1 && endIndex !== -1) ? lines.slice(startIndex, endIndex + 1).join('\n') : '';
+                document.getElementById('docs').innerHTML = docLines ? `<pre>${docLines.replace(/"""|#/g, '')}</pre>` : '<p class="error">No documentation found.</p>';
+                document.getElementById('code').textContent = data;
+                Prism.highlightAll();
+            })
+            .catch(error => {
+                document.getElementById('docs').innerHTML = '<p class="error">Error loading documentation: ' + error + '</p>';
+                document.getElementById('code').textContent = 'Error loading script: ' + error;
+            });
+
+        function copyCode() {
+            const code = document.getElementById('code').textContent;
+            navigator.clipboard.writeText(code)
+                .then(() => alert('Code copied to clipboard!'))
+                .catch(err => alert('Failed to copy code: ' + err));
+        }
+    </script>
 </body>
 </html>
