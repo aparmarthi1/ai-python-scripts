@@ -1,4 +1,81 @@
+
 #!/usr/bin/env python3
+
+"""
+Script Name: summary.py
+
+Description:
+This script summarizes text documents or forex trading CSVs in the current directory using a locally installed Ollama model.
+For text files (e.g., .txt, .docx, .pdf, .rtf, .md, .html), it generates a concise summary.
+For CSVs, it calculates forex trading metrics (total trades, total profit/loss, net profit, profitable/loss-making trade percentages, currency pairs) and summarizes them.
+Summaries are printed to the terminal and saved to files named 'summary_<original_filename>.txt'.
+
+Functionality:
+- Supports multiple file formats: .txt, .docx, .pdf, .rtf, .md, .html, .csv.
+- For CSVs, identifies profit/loss columns and computes trading metrics.
+- Uses Ollama's local LLM for summarization, ensuring data privacy.
+- Processes files matching a user-specified wildcard pattern (e.g., '*.txt', '*.csv').
+
+Arguments:
+- pattern (optional): Wildcard pattern for files to summarize (e.g., '*.txt', '*.csv', '*.pdf').
+  Default: '*.txt' if no pattern is provided.
+- -m, --model (optional): Ollama model for summarization.
+  Default: llama3.2.
+  Example: -m llama3.1:70b
+
+Usage:
+Run the script from the command line in the directory containing the files to summarize.
+Examples:
+    python summary.py                  # Summarize all *.txt files
+    python summary.py file.txt         # Summarize file.txt
+    python summary.py *.csv            # Summarize all *.csv files (with trading metrics)
+    python summary.py *.pdf            # Summarize all *.pdf files
+    python summary.py project*.docx    # Summarize files matching project*.docx
+    python summary.py -m llama3.1 *.rtf # Use llama3.1 model to summarize *.rtf files
+    python summary.py -h               # Show help message
+
+Python Version:
+- Written for Python 3.12
+- Compatible with Python 3.8 or higher
+- Verify with: python3 --version
+- Install Python: https://www.python.org/downloads/
+
+Required Python Libraries:
+- ollama: Interface with Ollama's local LLM
+- python-docx: Read .docx files
+- pdfplumber: Extract text from .pdf files
+- striprtf: Parse .rtf files
+- markdown: Convert Markdown to plain text
+- beautifulsoup4: Parse .html files
+- requests: Check Ollama server status
+- pandas: Process .csv files
+Install libraries in a virtual environment:
+    python3 -m venv venv
+    source venv/bin/activate  # On macOS/Linux
+    pip install ollama python-docx pdfplumber striprtf markdown beautifulsoup4 requests pandas
+
+LLM Model:
+- Default model: llama3.2
+- Alternative models: Any Ollama-compatible model (e.g., llama3.1, mistral)
+- Specify via --model argument (e.g., -m llama3.1:70b)
+
+Ollama Installation and Setup:
+1. Install Ollama:
+   - Download from https://ollama.ai/download (macOS/Linux/Windows)
+   - Follow installation instructions for your OS
+2. Pull the model:
+    ollama pull llama3.2
+3. Start the Ollama server in the background:
+    ollama serve > /dev/null 2>&1 &
+4. Verify the server is running:
+    curl http://localhost:11434  # Should return "Ollama is running"
+5. Check port 11434:
+    lsof -i :11434
+   If in use, kill the process: kill <PID>, then restart the server
+6. Confirm Ollama process:
+    ps aux | grep ollama
+Note: The Ollama server must be running before executing the script.
+"""
 
 import argparse
 import glob
@@ -208,48 +285,3 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"Unexpected error in script execution: {str(e)}")
         sys.exit(1)
-
-    if '-h' in sys.argv or '--help' in sys.argv:
-        print("""
-Summarize Text Documents and Forex Trading CSVs with Ollama
-=========================================================
-
-**Purpose**:
-This script (`summary.py`) summarizes text documents or forex trading CSVs in the current directory using a locally installed Ollama model.
-It processes files matching a specified wildcard pattern (e.g., '*.txt', '*.csv', '*.pdf') or all '*.txt' files by default.
-For CSVs, it calculates trading metrics (total profit/loss, net profit, trade count, percentage of profitable/loss-making trades).
-Summaries are displayed in the terminal and saved to files named 'summary_<original_filename>.txt'.
-
-**Usage**:
-    python summary.py [pattern] [-m model]
-    python summary.py -h  # Show this help message
-
-**Examples**:
-    python summary.py             # Summarize all *.txt files
-    python summary.py file.txt    # Summarize file.txt
-    python summary.py *.csv       # Summarize all *.csv files (with trading metrics)
-    python summary.py *.pdf       # Summarize all *.pdf files
-    python summary.py project*.doc # Summarize files matching project*.doc
-    python summary.py *.rtf       # Summarize all *.rtf files
-    python summary.py -m llama3.1:70b *.csv  # Use a different model
-
-**Setup Requirements**:
-1. **Python Version**:
-   - Tested on Python 3.12. Ensure Python 3.8+ is installed (run `python3 --version`).
-   - Install from https://www.python.org if needed.
-
-2. **Ollama**:
-   - Install Ollama locally (https://ollama.ai/download) for macOS/Linux/Windows.
-   - Pull the desired model: `ollama pull llama3.2`.
-   - Start the Ollama server with minimal logs: `ollama serve > /dev/null 2>&1 &`.
-   - Verify server: `curl http://localhost:11434` (should return "Ollama is running").
-   - Check port: `lsof -i :11434`. If port 11434 is in use, kill the process (`kill <PID>`) and restart.
-   - Check running processes: `ps aux | grep ollama`.
-
-3. **Python Libraries**:
-   - Install required libraries in a virtual environment:
-     ```bash
-     python3 -m venv venv
-     source venv/bin/activate  # On macOS/Linux
-     pip install ollama python-docx pdfplumber striprtf markdown beautifulsoup4 requests
-""")
