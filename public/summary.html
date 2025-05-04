@@ -26,14 +26,6 @@
             color: #2c3e50;
             font-size: 2em;
         }
-        #docs {
-            background: #f0f0f0;
-            padding: 15px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-            font-size: 0.95em;
-            white-space: pre-wrap;
-        }
         pre {
             background: #f4f4f4;
             padding: 15px;
@@ -79,7 +71,6 @@
     <div role="main">
         <button onclick="copyCode()">Copy to Clipboard</button>
         <a class="download-btn" href="https://raw.githubusercontent.com/aparmarthi1/ai-python-scripts/main/scripts/summary.py" download>Download Script</a>
-        <div id="docs">Loading documentation...</div>
         <pre><code class="language-python" id="code">Loading script...</code></pre>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
@@ -100,16 +91,10 @@
 
         fetchWithRetry('https://raw.githubusercontent.com/aparmarthi1/ai-python-scripts/main/scripts/summary.py')
             .then(data => {
-                const lines = data.split('\n');
-                let startIndex = lines.indexOf('"""');
-                let endIndex = startIndex !== -1 ? lines.indexOf('"""', startIndex + 1) : -1;
-                const docLines = (startIndex !== -1 && endIndex !== -1) ? lines.slice(startIndex, endIndex + 1).join('\n') : '';
-                document.getElementById('docs').innerHTML = docLines ? `<pre>${docLines.replace(/"""|#/g, '')}</pre>` : '<p class="error">No documentation found.</p>';
                 document.getElementById('code').textContent = data;
                 Prism.highlightAll();
             })
             .catch(error => {
-                document.getElementById('docs').innerHTML = '<p class="error">Error loading documentation: ' + error + '</p>';
                 document.getElementById('code').textContent = 'Error loading script: ' + error;
             });
 
