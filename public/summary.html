@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text Summarizer Script - AI Python Solutions</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        header {
+            text-align: center;
+            padding: 20px 0;
+        }
+        h1 {
+            color: #2c3e50;
+            font-size: 2em;
+        }
+        pre {
+            background: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-size: 0.9em;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        button, a.download-btn {
+            background: #3498db;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 10px;
+            margin-bottom: 15px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        button:hover, a.download-btn:hover {
+            background: #2980b9;
+        }
+        a.back-link {
+            color: #3498db;
+            text-decoration: none;
+        }
+        a.back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Text Summarizer Script</h1>
+        <p><a class="back-link" href="/">Back to Home</a></p>
+    </header>
+    <div>
+        <button onclick="copyCode()">Copy to Clipboard</button>
+        <a class="download-btn" href="https://raw.githubusercontent.com/aparmarthi1/ai-python-scripts/main/scripts/summary.py" download>Download Script</a>
+        <pre id="code">Loading script...</pre>
+    </div>
+    <script>
+        // Fetch the raw script content from GitHub
+        fetch('https://raw.githubusercontent.com/aparmarthi1/ai-python-scripts/main/scripts/summary.py')
+            .then(response => {
+                if (!response.ok) throw new Error('Failed to fetch script');
+                return response.text();
+            })
+            .then(data => {
+                document.getElementById('code').textContent = data;
+            })
+            .catch(error => {
+                document.getElementById('code').textContent = 'Error loading script: ' + error;
+            });
+
+        // Copy code to clipboard
+        function copyCode() {
+            const code = document.getElementById('code').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                alert('Code copied to clipboard!');
+            }).catch(err => {
+                alert('Failed to copy code: ' + err);
+            });
+        }
+    </script>
+</body>
+</html>
