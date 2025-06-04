@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PostgreSQL Database Chatbot - AI Python Solutions</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        pre {
+            background-color: #E5E7EB;
+            padding: 16px;
+            border-radius: 8px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <header class="bg-blue-600 text-white py-6">
+        <div class="container mx-auto px-4">
+            <h1 class="text-3xl font-bold">PostgreSQL Database Chatbot</h1>
+            <p class="mt-2 text-lg">A Python script for querying an Azure PostgreSQL database using LLaMA 3.2</p>
+            <a href="/index.html" class="text-white underline mt-2 inline-block">Back to Home</a>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-12">
+        <section class="bg-white p-8 rounded-lg shadow-md">
+            <h2 class="text-2xl font-semibold mb-4 text-gray-800">Overview</h2>
+            <p class="text-gray-700 mb-4">
+                The <code>postgres_chatbot.py</code> script creates a chatbot that answers questions about a library database hosted on an Azure PostgreSQL Flexible Server. It uses a locally installed LLaMA 3.2 model via Ollama to convert natural language queries into PostgreSQL queries, executes them, and displays results in a command-line chat interface. The database schema includes <code>Authors</code>, <code>Books</code>, and <code>Borrowers</code> tables.
+            </p>
+
+            <h2 class="text-2xl font-semibold mb-4 mt-6 text-gray-800">Features</h2>
+            <ul class="list-disc pl-6 text-gray-700 mb-4">
+                <li>Queries an Azure PostgreSQL database using natural language.</li>
+                <li>Uses LLaMA 3.2 for SQL generation.</li>
+                <li>Checks if the Ollama server is running and provides setup instructions.</li>
+                <li>Handles invalid queries gracefully.</li>
+                <li>User-friendly command-line interface.</li>
+            </ul>
+
+            <h2 class="text-2xl font-semibold mb-4 mt-6 text-gray-800">Requirements</h2>
+            <ul class="list-disc pl-6 text-gray-700 mb-4">
+                <li>Python 3.8 or higher</li>
+                <li>Libraries: <code>psycopg2-binary</code>, <code>ollama</code></li>
+                <li>Ollama (latest version, e.g., 0.3.12+)</li>
+                <li>LLaMA 3.2 model (installed via <code>ollama pull llama3.2</code>)</li>
+                <li>Azure PostgreSQL Flexible Server instance</li>
+            </ul>
+
+            <h2 class="text-2xl font-semibold mb-4 mt-6 text-gray-800">Installation</h2>
+            <pre class="mb-4 text-gray-800">
+# Install Python 3.8+ (if not already installed)
+# Linux
+sudo apt-get install python3
+# macOS
+brew install python3
+
+# Install required libraries
+pip install psycopg2-binary ollama
+
+# Install Ollama
+# Linux/macOS
+curl -fsSL https://ollama.com/install.sh | sh
+# Windows: Download from https://ollama.com/download
+
+# Pull LLaMA 3.2 model
+ollama pull llama3.2
+
+# Start Ollama server (run in a separate terminal)
+ollama serve
+            </pre>
+
+            <h2 class="text-2xl font-semibold mb-4 mt-6 text-gray-800">Setup</h2>
+            <p class="text-gray-700 mb-4">
+                Create an Azure PostgreSQL Flexible Server in the Azure portal. Configure public access and add your client IP to the firewall rules. Create the database schema using the provided SQL file.
+            </p>
+            <pre class="mb-4 text-gray-800">
+# Connect to your Azure PostgreSQL database
+psql "host=your_host port=5432 dbname=postgres user=your_username password=your_password sslmode=require"
+
+# Run the schema SQL file
+\i library_schema.sql
+            </pre>
+
+            <h2 class="text-2xl font-semibold mb-4 mt-6 text-gray-800">Usage</h2>
+            <p class="text-gray-700 mb-4">
+                Create a <code>postgres_connection.txt</code> file with your database credentials. Run the script to start the chatbot.
+            </p>
+            <pre class="mb-4 text-gray-800">
+# Example postgres_connection.txt
+host="your_host.postgres.database.azure.com"
+port="5432"
+database="postgres"
+username="your_username"
+password="your_password"
+
+# Run the script
+python3 postgres_chatbot.py
+            </pre>
+            <p class="text-gray-700 mb-4">
+                Type your question in the chat interface, or 'exit' to quit. Example questions:
+            </p>
+            <ul class="list-disc pl-6 text-gray-700 mb-4">
+                <li>List all books by George Orwell.</li>
+                <li>Who borrowed books in May 2025?</li>
+                <li>How many books are in the Fantasy genre?</li>
+            </ul>
+
+            <h2 class="text-2xl font-semibold mb-4 mt-6 text-gray-800">Sample Files</h2>
+            <p class="text-gray-700 mb-4">
+                Download the schema SQL file to set up the database:
+            </p>
+            <ul class="list-disc pl-6 text-gray-700 mb-4">
+                <li><a href="https://raw.githubusercontent.com/aparmarthi1/ai-python-scripts/main/scripts/library_schema.sql" class="text-blue-500 hover:text-blue-700">library_schema.sql</a>: SQL script to create <code>Authors</code>, <code>Books</code>, and <code>Borrowers</code> tables with sample data.</li>
+            </ul>
+
+            <h2 class="text-2xl font-semibold mb-4 mt-6 text-gray-800">Download</h2>
+            <p class="text-gray-700 mb-4">
+                Get the script and start building your PostgreSQL chatbot:
+            </p>
+            <a href="https://raw.githubusercontent.com/aparmarthi1/ai-python-scripts/main/scripts/postgres_chatbot.py" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-800 inline-block mb-4">Download postgres_chatbot.py</a>
+
+            <h2 class="text-2xl font-semibold mb-4 mt-6 text-gray-800">Example Output</h2>
+            <pre class="mb-4 text-gray-800">
+=== PostgreSQL Database Chatbot ===
+Hello! I'm ready to answer questions about the library database.
+Ask about books, authors, or borrowers. Type 'exit' to quit.
+================================
+
+You: List all books by George Orwell
+Generated SQL: SELECT b.title
+FROM Books b
+JOIN Authors a ON b.author_id = a.author_id
+WHERE a.last_name = 'Orwell'
+Bot: Results:
+['TITLE']
+('1984',)
+('Animal Farm',)
+
+You: exit
+Goodbye!
+            </pre>
+        </section>
+    </main>
+
+    <footer class="bg-gray-800 text-gray-300 py-6">
+        <div class="container mx-auto px-4 text-center">
+            <p>© 2025 AI Python Solutions. All rights reserved.</p>
+            <p class="mt-2">Hosted at <a href="https://ai-python-solutions.com" class="underline">ai-python-solutions.com</a></p>
+        </div>
+    </footer>
+</body>
+</html>

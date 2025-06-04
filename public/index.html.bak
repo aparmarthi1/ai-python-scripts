@@ -15,7 +15,7 @@
             max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
-            background-color: #f9f9f9;
+            background-color: #F3F4F6; /* Updated to match doc_based_chatbot.html */
         }
         header {
             text-align: center;
@@ -137,9 +137,9 @@
             <ul>
                 <li><a href="/summary.html">Text Summarizer</a></li>
                 <li><a href="/inconsistency_finder.html">Inconsistency Finder</a></li>
+                <li><a href="/doc_based_chatbot.html">Document-Based Chatbot</a></li>
             </ul>
         </div>
     </div>
 </body>
 </html>
-
