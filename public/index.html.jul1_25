@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="AI Python Solutions offers Python scripts for secure, locally installed LLMs and cloud database migration to automate tasks and ensure data privacy.">
-    <meta name="keywords" content="AI, LLMs, Python, data security, automation, open-source, Oracle Exadata, Azure, database migration">
+    <meta name="description" content="AI Python Solutions offers Python scripts for secure, locally installed LLMs to automate tasks and ensure data privacy.">
+    <meta name="keywords" content="AI, LLMs, Python, data security, automation, open-source">
     <meta name="author" content="AI Python Solutions">
     <title>AI Python Solutions - Secure, Local AI with LLMs</title>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -61,12 +61,6 @@
                 <li class="mb-2"><a href="/doc_based_chatbot.html" class="text-blue-500 hover:text-blue-700">Document-Based Chatbot</a></li>
                 <li class="mb-2"><a href="/postgres_chatbot.html" class="text-blue-500 hover:text-blue-700">PostgreSQL Database Chatbot</a></li>
                 <li class="mb-2"><a href="/oracledb_chatbot.html" class="text-blue-500 hover:text-blue-700">Oracle Database Chatbot</a></li>
-            </ul>
-            <h3 class="text-xl font-semibold mb-4 mt-6 text-gray-800">Cloud Database Migration</h3>
-            <ul class="list-none">
-                <li class="mb-2"><a href="/exadata_migration_to_azure_guide.html" class="text-blue-500 hover:text-blue-700">Migrating Oracle Exadata to Azure</a></li>
-                <li class="mb-2"><a href="/scripts/zdm_automation.py" class="text-blue-500 hover:text-blue-700">ZDM Automation Script</a></li>
-                <li class="mb-2"><a href="/scripts/exadata_data_validation.py" class="text-blue-500 hover:text-blue-700">Data Validation Script</a></li>
             </ul>
         </div>
     </div>
