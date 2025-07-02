@@ -65,7 +65,6 @@
             <h3 class="text-xl font-semibold mb-4 mt-6 text-gray-800">Cloud Database Migration</h3>
             <ul class="list-none">
                 <li class="mb-2"><a href="/exadata_migration_to_azure_guide.html" class="text-blue-500 hover:text-blue-700">Migrating Oracle Exadata to Azure</a></li>
-                <li class="mb-2"><a href="/server_metrics_failure_predictor_azure_ai.html" class="text-blue-500 hover:text-blue-700">Server Failure Predictor</a></li>
                 <li class="mb-2"><a href="/scripts/zdm_automation.py" class="text-blue-500 hover:text-blue-700">ZDM Automation Script</a></li>
                 <li class="mb-2"><a href="/scripts/exadata_data_validation.py" class="text-blue-500 hover:text-blue-700">Data Validation Script</a></li>
             </ul>
