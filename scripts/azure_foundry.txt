@@ -1,0 +1,5 @@
+# Paste the following content:
+AZURE_AI_FOUNDRY_ENDPOINT=https://your-resource-name.openai.azure.com/
+AZURE_AI_FOUNDRY_KEY=your-api-key
+AZURE_AI_FOUNDRY_MODEL=gpt-4o-mini
+AZURE_AI_FOUNDRY_DEPLOYMENT=your-deployment-name
