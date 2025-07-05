@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AI Python Solutions offers Python scripts for secure, locally installed LLMs and cloud database migration to automate tasks and ensure data privacy.">
+    <meta name="keywords" content="AI, LLMs, Python, data security, automation, open-source, Oracle Exadata, Azure, database migration">
+    <meta name="author" content="AI Python Solutions">
+    <title>AI Python Solutions - Secure, Local AI with LLMs</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <header class="bg-blue-600 text-white py-6 text-center">
+        <div class="container mx-auto px-4">
+            <h1 class="text-3xl font-bold">Welcome to AI Python Solutions</h1>
+            <nav class="mt-4">
+                <a href="/index.html" class="text-white underline mx-4">Home</a>
+                <a href="https://github.com/aparmarthi1/ai-python-scripts" class="text-white underline mx-4">GitHub</a>
+            </nav>
+        </div>
+    </header>
+    <div class="container mx-auto px-4 py-12 flex flex-col md:flex-row gap-6">
+        <div class="flex-3 bg-white p-6 rounded-lg shadow-md" role="main">
+            <h2 class="text-2xl font-semibold mb-4 text-gray-800">Explore AI Solutions</h2>
+            <p class="text-gray-700 mb-4 text-lg">At <a href="https://ai-python-solutions.com" class="text-blue-500 hover:text-blue-700">AI Python Solutions</a>, we provide open-source Python scripts to empower businesses and individuals with secure, cost-effective AI solutions. Our tools leverage locally installed Large Language Models (LLMs) and cloud database migration strategies to automate tasks, ensure data privacy, and drive innovation. Explore the following resources to learn more about AI’s impact and how to implement it effectively:</p>
+            <ul class="list-disc pl-6 text-gray-700 mb-4 text-lg">
+                <li class="mb-2"><a href="/ai_revolution.html" class="text-blue-500 hover:text-blue-700">The AI Revolution: Past Achievements and Future Transformations (2022–2030)</a> – Discover how AI has reshaped industries over the past three years and what to expect in the next five, with insights into banking, insurance, retail, and more.</li>
+                <li class="mb-2"><a href="/local_llm_model.html" class="text-blue-500 hover:text-blue-700">Leveraging Free Locally Installed LLMs for AI Applications</a> – Learn why locally installed LLMs offer unmatched security, customization, and cost efficiency, with practical guidance on getting started.</li>
+            </ul>
+            <p class="text-gray-700 mb-4 text-lg">Visit our <a href="https://github.com/aparmarthi1/ai-python-scripts" class="text-blue-500 hover:text-blue-700">GitHub repository</a> to access our scripts and start building your AI solutions today.</p>
+        </div>
+        <div class="flex-1 bg-white p-6 rounded-lg shadow-md" role="complementary">
+            <h3 class="text-xl font-semibold mb-4 text-gray-800">Python AI Scripts</h3>
+            <ul class="list-none">
+                <li class="mb-2"><a href="/summary.html" class="text-blue-500 hover:text-blue-700">Text Summarizer</a></li>
+                <li class="mb-2"><a href="/inconsistency_finder.html" class="text-blue-500 hover:text-blue-700">Inconsistency Finder</a></li>
+                <li class="mb-2"><a href="/doc_based_chatbot.html" class="text-blue-500 hover:text-blue-700">Document-Based Chatbot</a></li>
+                <li class="mb-2"><a href="/postgres_chatbot.html" class="text-blue-500 hover:text-blue-700">PostgreSQL Database Chatbot</a></li>
+                <li class="mb-2"><a href="/oracledb_chatbot.html" class="text-blue-500 hover:text-blue-700">Oracle Database Chatbot</a></li>
+            </ul>
+            <h3 class="text-xl font-semibold mb-4 mt-6 text-gray-800">Cloud Database Migration</h3>
+            <ul class="list-none">
+                <li class="mb-2"><a href="/exadata_migration_to_azure_guide.html" class="text-blue-500 hover:text-blue-700">Migrating Oracle Exadata to Azure</a></li>
+                <li class="mb-2"><a href="/server_metrics_failure_predictor_azure_ai.html" class="text-blue-500 hover:text-blue-700">Server Failure Predictor</a></li>
+                <li class="mb-2"><a href="https://raw.githubusercontent.com/aparmarthi1/ai-python-scripts/main/scripts/zdm_automation.py" class="text-blue-500 hover:text-blue-700">ZDM Automation Script</a></li>
+                <li class="mb-2"><a href="https://raw.githubusercontent.com/aparmarthi1/ai-python-scripts/main/scripts/exadata_data_validation.py" class="text-blue-500 hover:text-blue-700">Data Validation Script</a></li>
+            </ul>
+        </div>
+    </div>
+    <footer class="bg-gray-800 text-gray-300 py-6">
+        <div class="container mx-auto px-4 text-center">
+            <p>© 2025 AI Python Solutions. All rights reserved.</p>
+            <p class="mt-2">Hosted at <a href="https://ai-python-solutions.com" class="underline">ai-python-solutions.com</a></p>
+        </div>
+    </footer>
+</body>
+</html>
