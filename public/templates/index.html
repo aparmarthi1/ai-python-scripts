@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agentic Task Automation Chatbot</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto px-4 py-12">
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <h1 class="text-2xl font-semibold mb-4 text-gray-800">Agentic Task Automation Chatbot (Multi-Agent)</h1>
+            <p class="text-gray-700 mb-4">This chatbot uses two worker agents (Task Parser and Suggestion) coordinated by a master agent to schedule tasks and provide proactive suggestions.</p>
+            <form method="post">
+                <label class="text-gray-700">Enter Task (e.g., "Schedule a meeting for tomorrow at 10 AM"):</label><br>
+                <textarea name="task" class="w-full p-2 border rounded" rows="4"></textarea><br>
+                <input type="submit" value="Submit Task" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+            </form>
+            {% if response %}
+            <h2 class="text-xl font-semibold mt-6 text-gray-800">Response:</h2>
+            <p class="text-gray-700">{{ response }}</p>
+            {% if suggestion %}
+            <p class="text-gray-700">Suggestion: {{ suggestion }}</p>
+            {% endif %}
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

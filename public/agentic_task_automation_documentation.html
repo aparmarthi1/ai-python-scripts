@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Documentation for building a multi-agent AI task automation chatbot using Azure Free Account.">
+    <meta name="keywords" content="AI, Agentic AI, Azure, Flask, Python, Cosmos DB, OpenAI">
+    <meta name="author" content="AI Python Solutions">
+    <title>Agentic Task Automation Chatbot Documentation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        pre { background-color: #f4f4f4; padding: 10px; border-radius: 5px; }
+        code { font-family: 'Courier New', Courier, monospace; }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <header class="bg-blue-600 text-white py-6 text-center">
+        <div class="container mx-auto px-4">
+            <h1 class="text-3xl font-bold">Agentic Task Automation Chatbot Documentation</h1>
+            <nav class="mt-4">
+                <a href="/index.html" class="text-white underline mx-4">Home</a>
+                <a href="https://github.com/aparmarthi1/ai-python-scripts" class="text-white underline mx-4">GitHub</a>
+            </nav>
+        </div>
+    </header>
+    <div class="container mx-auto px-4 py-12">
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <h2 class="text-2xl font-semibold mb-4 text-gray-800">Overview</h2>
+            <p class="text-gray-700 mb-4 text-lg">This documentation guides you through building a multi-agent AI task automation chatbot using an Azure Free Account. The chatbot schedules tasks from user input (e.g., “Schedule a meeting for tomorrow at 10 AM”) using three AI agents: a Task Parser Agent, a Suggestion Agent, and a Master Coordinating Agent. It leverages Azure OpenAI’s GPT-4o-mini, Azure Cosmos DB, Azure App Service, and Azure Functions to parse tasks, store them, and check for upcoming deadlines.</p>
+
+            <h3 class="text-xl font-semibold mb-4 mt-6 text-gray-800">Agent Roles</h3>
+            <ul class="list-disc pl-6 text-gray-700 mb-4 text-lg">
+                <li class="mb-2"><strong>Task Parser Agent</strong>: Analyzes user input to extract task details (task name, due date, priority) using GPT-4o-mini.</li>
+                <li class="mb-2"><strong>Suggestion Agent</strong>: Generates proactive suggestions (e.g., reminders) based on parsed tasks using GPT-4o-mini.</li>
+                <li class="mb-2"><strong>Master Coordinating Agent</strong>: Orchestrates the workflow, delegating tasks to the parser and suggestion agents, storing data in Cosmos DB, and displaying results via a Flask web app.</li>
+                <li class="mb-2"><strong>Task Checker Function</strong>: Runs every 5 minutes to check for tasks due within an hour and logs alerts.</li>
+            </ul>
+
+            <h3 class="text-xl font-semibold mb-4 mt-6 text-gray-800">Prerequisites</h3>
+            <ul class="list-disc pl-6 text-gray-700 mb-4 text-lg">
+                <li class="mb-2">An <a href="https://azure.microsoft.com/en-us/free/" class="text-blue-500 hover:text-blue-700">Azure Free Account</a> with $200 credit for 30 days and free services (App Service F1 tier, 1M Azure Functions requests, 25 GB Cosmos DB).</li>
+                <li class="mb-2">A GitHub account and repository to store the code.</li>
+                <li class="mb-2">Access to Azure OpenAI (apply for Limited Access via Azure Portal if needed).</li>
+                <li class="mb-2">Python 3.9 or higher installed on your development machine.</li>
+                <li class="mb-2">Git installed for repository management.</li>
+            </ul>
+
+            <h3 class="text-xl font-semibold mb-4 mt-6 text-gray-800">Step 1: Set Up Your GitHub Repository</h3>
+            <p class="text-gray-700 mb-4 text-lg">Create a GitHub repository (e.g., <code>ai-python-scripts</code>) with the following structure:</p>
+            <pre><code>
+/your-repo/
+├── templates/
+│   ├── index.html  # Flask web template
+├── agentic_task_chatbot.py  # Flask app with multi-agent logic
+├── task_checker_function.py  # Azure Function for task checking
+├── requirements.txt  # Python dependencies
+            </code></pre>
+            <p class="text-gray-700 mb-4 text-lg">Download the scripts from our GitHub repository: <a href="https://github.com/aparmarthi1/ai-python-scripts" class="text-blue-500 hover:text-blue-700">https://github.com/aparmarthi1/ai-python-scripts</a>.</p>
+
+            <h3 class="text-xl font-semibold mb-4 mt-6 text-gray-800">Step 2: Create Azure Resources</h3>
+            <ol class="list-decimal pl-6 text-gray-700 mb-4 text-lg">
+                <li class="mb-2"><strong>Azure App Service</strong>:
+                    <ul class="list-disc pl-6">
+                        <li>Log in to <a href="https://portal.azure.com" class="text-blue-500 hover:text-blue-700">Azure Portal</a>.</li>
+                        <li>Go to <strong>App Services</strong> > <strong>Create web app</strong>.</li>
+                        <li>Fill in:
+                            <ul class="list-disc pl-6">
+                                <li><strong>Subscription</strong>: Free Trial</li>
+                                <li><strong>Resource Group</strong>: Create new (e.g., <code>AgenticAIPoC</code>)</li>
+                                <li><strong>Name</strong>: Unique name (e.g., <code>your-task-chatbot</code>)</li>
+                                <li><strong>Publish</strong>: Code</li>
+                                <li><strong>Runtime stack</strong>: Python 3.9</li>
+                                <li><strong>Operating System</strong>: Linux</li>
+                                <li><strong>SKU</strong>: F1 (Free)</li>
+                                <li><strong>Region</strong>: East US</li>
+                            </ul>
+                        </li>
+                        <li>Click <strong>Review + create</strong> > <strong>Create</strong>.</li>
+                    </ul>
+                </li>
+                <li class="mb-2"><strong>Azure Cosmos DB</strong>:
+                    <ul class="list-disc pl-6">
+                        <li>Go to <strong>Create a resource</strong> > <strong>Azure Cosmos DB</strong>.</li>
+                        <li>Fill in:
+                            <ul class="list-disc pl-6">
+                                <li><strong>Subscription</strong>: Free Trial</li>
+                                <li><strong>Resource Group</strong>: AgenticAIPoC</li>
+                                <li><strong>Account Name</strong>: <code>your-task-db</code></li>
+                                <li><strong>API</strong>: Core (SQL)</li>
+                                <li><strong>Location</strong>: East US</li>
+                                <li><strong>Capacity mode</strong>: Provisioned throughput (free tier)</li>
+                            </ul>
+                        </li>
+                        <li>Click <strong>Review + create</strong> > <strong>Create</strong>.</li>
+                        <li>After creation, go to <strong>Data Explorer</strong> > <strong>New Database</strong> > Name: <code>TasksDB</code>.</li>
+                        <li>Create a container: Name: <code>Tasks</code>, Partition key: <code>/id</code>.</li>
+                    </ul>
+                </li>
+                <li class="mb-2"><strong>Azure Function</strong>:
+                    <ul class="list-disc pl-6">
+                        <li>Go to <strong>Create a resource</strong> > <strong>Function App</strong>.</li>
+                        <li>Fill in:
+                            <ul class="list-disc pl-6">
+                                <li><strong>Subscription</strong>: Free Trial</li>
+                                <li><strong>Resource Group</strong>: AgenticAIPoC</li>
+                                <li><strong>Function App name</strong>: <code>your-task-checker</code></li>
+                                <li><strong>Publish</strong>: Code</li>
+                                <li><strong>Runtime stack</strong>: Python (3.9)</li>
+                                <li><strong>Region</strong>: East US</li>
+                                <li><strong>Plan type</strong>: Consumption (Serverless, free for 1M requests)</li>
+                            </ul>
+                        </li>
+                        <li>Click <strong>Review + create</strong> > <strong>Create</strong>.</li>
+                    </ul>
+                </li>
+                <li class="mb-2"><strong>Azure OpenAI</strong>:
+                    <ul class="list-disc pl-6">
+                        <li>Go to <strong>Create a resource</strong> > <strong>Azure OpenAI</strong>.</li>
+                        <li>Fill in:
+                            <ul class="list-disc pl-6">
+                                <li><strong>Subscription</strong>: Free Trial</li>
+                                <li><strong>Resource Group</strong>: AgenticAIPoC</li>
+                                <li><strong>Name</strong>: <code>your-openai</code></li>
+                                <li><strong>Region</strong>: East US</li>
+                                <li><strong>Pricing tier</strong>: Standard S0</li>
+                            </ul>
+                        </li>
+                        <li>Click <strong>Review + create</strong> > <strong>Create</strong>.</li>
+                        <li>After creation, go to <strong>Model deployments</strong> > <strong>Create</strong>, select <code>gpt-4o-mini</code> (version 2024-07-18), name it <code>gpt-4o-mini</code>.</li>
+                    </ul>
+                </li>
+            </ol>
+
+            <h3 class="text-xl font-semibold mb-4 mt-6 text-gray-800">Step 3: Deploy the Flask Application</h3>
+            <ol class="list-decimal pl-6 text-gray-700 mb-4 text-lg">
+                <li class="mb-2"><strong>Configure Deployment</strong>:
+                    <ul class="list-disc pl-6">
+                        <li>Go to App Service (<code>your-task-chatbot</code>) > <strong>Deployment Center</strong> > <strong>Settings</strong>.</li>
+                        <li>Select <strong>Source</strong>: GitHub.</li>
+                        <li>Authorize GitHub, then select your repository and branch (<code>main</code>).</li>
+                        <li>Click <strong>Save</strong> to set up GitHub Actions deployment.</li>
+                    </ul>
+                </li>
+                <li class="mb-2"><strong>Set Startup Command</strong>:
+                    <ul class="list-disc pl-6">
+                        <li>Go to App Service > <strong>Settings</strong> > <strong>Configuration</strong> > <strong>General settings</strong>.</li>
+                        <li>Set <strong>Startup Command</strong>: <code>gunicorn --bind=0.0.0.0:8000 agentic_task_chatbot:app</code>.</li>
+                        <li>Click <strong>Save</strong> and <strong>Restart</strong>.</li>
+                    </ul>
+                </li>
+                <li class="mb-2"><strong>Configure Environment Variables</strong>:
+                    <ul class="list-disc pl-6">
+                        <li>Go to App Service > <strong>Settings</strong> > <strong>Configuration</strong> > <strong>Application settings</strong>.</li>
+                        <li>Add:
+                            <ul class="list-disc pl-6">
+                                <li><code>AZURE_OPENAI_ENDPOINT</code>: From Azure OpenAI > <strong>Keys and Endpoint</strong>.</li>
+                                <li><code>AZURE_OPENAI_API_KEY</code>: From Azure OpenAI > <strong>Keys and Endpoint</strong>.</li>
+                                <li><code>COSMOS_ENDPOINT</code>: From Cosmos DB > <strong>Settings</strong> > <strong>Keys</strong>.</li>
+                                <li><code>COSMOS_KEY</code>: From Cosmos DB > <strong>Settings</strong> > <strong>Keys</strong>.</li>
+                            </ul>
+                        </li>
+                        <li>Click <strong>Save</strong> and <strong>Restart</strong>.</li>
+                    </ul>
+                </li>
+            </ol>
+
+            <h3 class="text-xl font-semibold mb-4 mt-6 text-gray-800">Step 4: Deploy the Azure Function</h3>
+            <ol class="list-decimal pl-6 text-gray-700 mb-4 text-lg">
+                <li class="mb-2"><strong>Configure Function Deployment</strong>:
+                    <ul class="list-disc pl-6">
+                        <li>Go to Function App (<code>your-task-checker</code>) > <strong>Deployment Center</strong> > <strong>Settings</strong>.</li>
+                        <li>Select <strong>Source</strong>: GitHub, choose your repository and branch (<code>main</code>).</li>
+                        <li>Click <strong>Save</strong>.</li>
+                    </ul>
+                </li>
+                <li class="mb-2"><strong>Add Environment Variables</strong>:
+                    <ul class="list-disc pl-6">
+                        <li>Go to Function App > <strong>Settings</strong> > <strong>Configuration</strong> > <strong>Application settings</strong>.</li>
+                        <li>Add <code>COSMOS_ENDPOINT</code> and <code>COSMOS_KEY</code>.</li>
+                        <li>Click <strong>Save</strong> and <strong>Restart</strong>.</li>
+                    </ul>
+                </li>
+            </ol>
+
+            <h3 class="text-xl font-semibold mb-4 mt-6 text-gray-800">Step 5: Test the Application</h3>
+            <p class="text-gray-700 mb-4 text-lg">After deployment, test the application:</p>
+            <ol class="list-decimal pl-6 text-gray-700 mb-4 text-lg">
+                <li>Visit your App Service URL (e.g., <code>https://your-task-chatbot.azurewebsites.net</code>).</li>
+                <li>Enter a task (e.g., “Schedule a meeting for tomorrow at 10 AM”).</li>
+                <li>Verify the response (e.g., “Task ‘Meeting’ scheduled for 2025-07-06 10:00:00 (Priority: Medium).”) and suggestion (e.g., “Set a reminder 30 minutes before?”).</li>
+                <li>Check Cosmos DB (<code>your-task-db</code> > <strong>Data Explorer</strong> > <code>TasksDB/Tasks</code>) for stored tasks.</li>
+                <li>Monitor Function logs in Function App > <strong>Functions</strong> > <strong>check_tasks</strong> > <strong>Monitor</strong> > <strong>Logs</strong> for alerts (e.g., “Alert: Task ‘Meeting’ is due…”).</li>
+            </ol>
+
+            <h3 class="text-xl font-semibold mb-4 mt-6 text-gray-800">Scripts and Files</h3>
+            <h4 class="text-lg font-semibold mb-2 text-gray-800">agentic_task_chatbot.py</h4>
+            <p class="text-gray-700 mb-2 text-lg">The Flask app implementing the three agents.</p>
+            <pre><code>
+from flask import Flask, request, render_template
+from openai import AzureOpenAI
+from azure.cosmos import CosmosClient, PartitionKey
+import os
+from datetime import datetime
+
+app = Flask(__name__)
+
+# Azure OpenAI setup
+openai_client = AzureOpenAI(
+    azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT"),
+    api_key=os.getenv("AZURE_OPENAI_API_KEY"),
+    api_version="2024-02-15-preview"
+)
+
+# Azure Cosmos DB setup
+cosmos_client = CosmosClient(os.getenv("COSMOS_ENDPOINT"), os.getenv("COSMOS_KEY"))
+database = cosmos_client.get_database_client("TasksDB")
+container = database.get_container_client("Tasks")
+
+def task_parser_agent(user_input):
+    """Worker Agent 1: Parse user input into structured task data."""
+    try:
+        response = openai_client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": "You are a Task Parser Agent. Parse the user's task request into a JSON object with task name, due date (ISO format), and priority (low/medium/high based on keywords like 'urgent'). Example: {'task': 'Meeting', 'due_date': '2025-07-06T10:00:00', 'priority': 'Medium'}"},
+                {"role": "user", "content": user_input}
+            ]
+        )
+        return eval(response.choices[0].message.content)  # Assuming JSON response
+    except Exception as e:
+        return {"error": f"Task parsing failed: {str(e)}"}
+
+def suggestion_agent(task_data):
+    """Worker Agent 2: Generate a proactive suggestion based on task data."""
+    if "error" in task_data:
+        return {"suggestion": "Unable to generate suggestion due to parsing error."}
+    try:
+        response = openai_client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": "You are a Suggestion Agent. Based on the task data, suggest a proactive follow-up action (e.g., reminder, related task). Return JSON: {'suggestion': str}"},
+                {"role": "user", "content": str(task_data)}
+            ]
+        )
+        return eval(response.choices[0].message.content)  # Assuming JSON response
+    except Exception as e:
+        return {"suggestion": f"Suggestion generation failed: {str(e)}"}
+
+def master_coordinating_agent(user_input):
+    """Master Agent: Coordinate task parsing, suggestion generation, and storage."""
+    # Step 1: Delegate to Task Parser Agent
+    task_data = task_parser_agent(user_input)
+    if "error" in task_data:
+        return {"response": task_data["error"], "suggestion": None}
+    
+    # Step 2: Delegate to Suggestion Agent
+    suggestion_data = suggestion_agent(task_data)
+    
+    # Step 3: Store task in Cosmos DB
+    task_record = {
+        "id": str(datetime.now().timestamp()),
+        "task": task_data["task"],
+        "due_date": task_data["due_date"],
+        "priority": task_data["priority"],
+        "created_at": datetime.now().isoformat()
+    }
+    try:
+        container.create_item(task_record)
+        response = f"Task '{task_data['task']}' scheduled for {task_data['due_date']} (Priority: {task_data['priority']})."
+    except Exception as e:
+        response = f"Failed to store task: {str(e)}"
+    
+    return {"response": response, "suggestion": suggestion_data.get("suggestion")}
+
+@app.route("/", methods=["GET", "POST"])
+def index():
+    response = None
+    suggestion = None
+    if request.method == "POST":
+        user_input = request.form["task"]
+        result = master_coordinating_agent(user_input)
+        response = result["response"]
+        suggestion = result["suggestion"]
+    
+    return render_template("index.html", response=response, suggestion=suggestion)
+
+if __name__ == "__main__":
+    app.run(debug=True)
+            </code></pre>
+
+            <h4 class="text-lg font-semibold mb-2 text-gray-800">task_checker_function.py</h4>
+            <p class="text-gray-700 mb-2 text-lg">The Azure Function to check for upcoming tasks.</p>
+            <pre><code>
+import azure.functions as func
+from azure.cosmos import CosmosClient
+from datetime import datetime, timedelta
+import logging
+
+app = func.FunctionApp()
+
+@app.schedule(schedule="0 */5 * * * *", arg_name="timer", run_on_startup=True)
+def check_tasks(timer: func.TimerRequest) -> None:
+    cosmos_client = CosmosClient(os.getenv("COSMOS_ENDPOINT"), os.getenv("COSMOS_KEY"))
+    database = cosmos_client.get_database_client("TasksDB")
+    container = database.get_container_client("Tasks")
+    
+    # Query tasks due within the next hour
+    query = "SELECT * FROM c WHERE c.due_date <= @due_date"
+    params = [{"name": "@due_date", "value": (datetime.now() + timedelta(hours=1)).isoformat()}]
+    tasks = list(container.query_items(query=query, parameters=params, enable_cross_partition_query=True))
+    
+    for task in tasks:
+        logging.info(f"Alert: Task '{task['task']}' is due by {task['due_date']} (Priority: {task['priority']})")
+            </code></pre>
+
+            <h4 class="text-lg font-semibold mb-2 text-gray-800">templates/index.html</h4>
+            <p class="text-gray-700 mb-2 text-lg">The Flask template for the web interface.</p>
+            <pre><code>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agentic Task Automation Chatbot</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto px-4 py-12">
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <h1 class="text-2xl font-semibold mb-4 text-gray-800">Agentic Task Automation Chatbot (Multi-Agent)</h1>
+            <p class="text-gray-700 mb-4">This chatbot uses two worker agents (Task Parser and Suggestion) coordinated by a master agent to schedule tasks and provide proactive suggestions.</p>
+            <form method="post">
+                <label class="text-gray-700">Enter Task (e.g., "Schedule a meeting for tomorrow at 10 AM"):</label><br>
+                <textarea name="task" class="w-full p-2 border rounded" rows="4"></textarea><br>
+                <input type="submit" value="Submit Task" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+            </form>
+            {% if response %}
+            <h2 class="text-xl font-semibold mt-6 text-gray-800">Response:</h2>
+            <p class="text-gray-700">{{ response }}</p>
+            {% if suggestion %}
+            <p class="text-gray-700">Suggestion: {{ suggestion }}</p>
+            {% endif %}
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>
+            </code></pre>
+
+            <h4 class="text-lg font-semibold mb-2 text-gray-800">requirements.txt</h4>
+            <p class="text-gray-700 mb-2 text-lg">Python dependencies for the Flask app and Function.</p>
+            <pre><code>
+flask==2.3.2
+azure-cosmos==4.3.0
+azure-identity==1.12.0
+openai==1.10.0
+gunicorn==20.1.0
+            </code></pre>
+
+            <h3 class="text-xl font-semibold mb-4 mt-6 text-gray-800">Step 6: Monitor Costs</h3>
+            <p class="text-gray-700 mb-4 text-lg">Use Azure Portal’s <strong>Cost Management</strong> to track usage. The F1 App Service tier, 1M Function requests, and 25 GB Cosmos DB are free. Azure OpenAI’s GPT-4o-mini may incur minimal costs (~$0.0005/1K tokens). Disable resources after testing to avoid charges.</p>
+
+            <h3 class="text-xl font-semibold mb-4 mt-6 text-gray-800">Limitations</h3>
+            <ul class="list-disc pl-6 text-gray-700 mb-4 text-lg">
+                <li class="mb-2">Requires Azure OpenAI access (apply via Azure Portal).</li>
+                <li class="mb-2">Alerts are logged in Azure; view via Portal or <code>az webapp log tail</code>.</li>
+                <li class="mb-2">F1 tier has limited compute (60 minutes/day, 1 GB memory).</li>
+            </ul>
+
+            <p class="text-gray-700 mb-4 text-lg">Download the scripts from our <a href="https://github.com/aparmarthi1/ai-python-scripts" class="text-blue-500 hover:text-blue-700">GitHub repository</a> and start building your agentic AI application today!</p>
+        </div>
+    </div>
+    <footer class="bg-gray-800 text-gray-300 py-6">
+        <div class="container mx-auto px-4 text-center">
+            <p>© 2025 AI Python Solutions. All rights reserved.</p>
+            <p class="mt-2">Hosted at <a href="https://ai-python-solutions.com" class="underline">ai-python-solutions.com</a></p>
+        </div>
+    </footer>
+</body>
+</html>
