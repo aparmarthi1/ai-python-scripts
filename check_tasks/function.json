@@ -1,0 +1,11 @@
+{
+  "scriptFile": "task_checker_function.py",
+  "bindings": [
+    {
+      "name": "timer",
+      "type": "timerTrigger",
+      "direction": "in",
+      "schedule": "0 */5 * * * *"
+    }
+  ]
+}
