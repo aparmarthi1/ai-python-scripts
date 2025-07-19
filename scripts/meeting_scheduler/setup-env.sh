@@ -4,10 +4,10 @@
 export PROJDIR=~/py/ai-python-scripts
 
 # Azure resource group for all resources
-export AGENTICAI_RG=agenticairg
+export AGENTICAI_RG="meeting-scheduler-rg"
 
 # Azure region for resource deployment
-export AZURE_LOCATION=eastus
+export AZURE_LOCATION="eastus"
 
 # Azure subscription ID (will be set dynamically)
 export SUBSCRIPTION_ID=""
@@ -16,37 +16,37 @@ export SUBSCRIPTION_ID=""
 export AZURE_CLI_VERSION=""
 
 # App Service name for the chatbot interface
-export AGENTICAI_APP_SRV=agenticai-app-srv
+export AGENTICAI_APP_SRV="meetingschedulerapp$(date +%s)"
 
 # Python script name for the App Service
-export AGENTICAI_APP=agenticai-chat-bot
+export AGENTICAI_APP="agenticai-chat-bot"
 
 # Directory for App Service code
-export AGENTICAI_APP_DIR=$PROJDIR/app-service
+export AGENTICAI_APP_DIR="$PWD/app"
 
 # Path to the App Service deployment zip file
-export AGENTICAI_APP_ZIP=$AGENTICAI_APP_DIR/webapp.zip
+export AGENTICAI_APP_ZIP="$PWD/webapp.zip"
 
 # Port for the App Service application
-export AGENTICAI_APP_PORT=8000
+export AGENTICAI_APP_PORT="8000"
 
 # Function App name for task management
-export AGENTICAI_TASK_CHECKER_FN_APP=agenticai-task-checker-fn-app
+export AGENTICAI_TASK_CHECKER_FN_APP="meetingschedulerfn$(date +%s)"
 
 # Directory for Function App code
-export AGENTICAI_FN_DIR=$PROJDIR/function-app
+export AGENTICAI_FN_DIR="$PWD/check_tasks"
 
 # Path to the Function App deployment zip file
-export AGENTICAI_FN_ZIP=$AGENTICAI_FN_DIR/function-app.zip
+export AGENTICAI_FN_ZIP="$PWD/function-app.zip"
 
 # Python script name for the Function App
-export AGENTICAI_FN_SCRIPT=task-checker-fn
+export AGENTICAI_FN_SCRIPT="task-checker-fn"
 
 # Timeout for Function App execution (in seconds)
-export AGENTICAI_FN_TIMEOUT=600
+export AGENTICAI_FN_TIMEOUT="600"
 
 # Cosmos DB account name
-export COSMOS_DB_ACCOUNT=agenticai-cosmos-db
+export COSMOS_DB_ACCOUNT="meetingschedulerdb$(date +%s)"
 
 # Cosmos DB endpoint URL (will be set dynamically)
 export COSMOS_DB_ENDPOINT=""
@@ -55,13 +55,13 @@ export COSMOS_DB_ENDPOINT=""
 export COSMOS_DB_KEY=""
 
 # Cosmos DB database name
-export COSMOS_DATABASE_NAME=taskdb
+export COSMOS_DATABASE_NAME="taskdb"
 
 # Cosmos DB container name
-export COSMOS_CONTAINER_NAME=task
+export COSMOS_CONTAINER_NAME="task"
 
 # Storage Account name for file storage
-export STORAGE_ACCOUNT_NAME=agenticaistorage12345678
+export STORAGE_ACCOUNT_NAME="agenticaistorage$(date +%s)"
 
 # Storage Account primary key (will be set dynamically)
 export STORAGE_ACCOUNT_KEY=""
@@ -70,44 +70,40 @@ export STORAGE_ACCOUNT_KEY=""
 export AGENTICAI_FN_STORAGE=""
 
 # Blob container name for file storage
-export STORAGE_CONTAINER_NAME=agenticai-files
+export STORAGE_CONTAINER_NAME="agenticai-files"
 
 # Application Insights resource name
-export APP_INSIGHTS_NAME=agenticai-app-insights
+export APP_INSIGHTS_NAME="agenticai-app-insights"
 
 # Application Insights instrumentation key (will be set dynamically)
 export APP_INSIGHTS_KEY=""
 
-# Hugging Face API URL for LLM integration (static, set based on model used)
-export HF_API_URL=https://vdow3mpnreu0sh2y.us-east-1.aws.endpoints.huggingface.cloud
+# Hugging Face API URL for LLM integration
+export HF_API_URL=""
 
-# Hugging Face API key (static, set after obtaining from Hugging Face)
+# Hugging Face API key
 export HF_API_KEY=""
 
+# DeepSeek API URL for LLM integration
+export DS_API_URL="https://api.deepseek.com"
 
-# DEEP SEEK  API URL for LLM integration (static, set based on model used)
-export DS_API_URL=""
+# DeepSeek API key
+export DS_API_KEY="your-deepseek-api-key"
 
-# DEEP SEEK  API key 
-export DS_API_KEY=""
+# OpenAI resource name (optional)
+export AGENTICAI_OPENAI="agenticai-openai"
 
-
-# OpenAI resource name (optional, if used instead of Hugging Face)
-export AGENTICAI_OPENAI=agenticai-openai
-
-# OpenAI API key (optional, set after obtaining from OpenAI)
+# OpenAI API key (optional)
 export OPENAI_API_KEY=""
 
 # Log level for application logging
-export AGENTICAI_LOG_LEVEL=INFO
+export AGENTICAI_LOG_LEVEL="INFO"
 
 # Environment identifier (e.g., dev, prod)
-export AGENTICAI_ENV=dev
+export AGENTICAI_ENV="dev"
 
-
-# Environment BUILD during deployment  
+# Environment BUILD during deployment
 export SCM_DO_BUILD_DURING_DEPLOYMENT="true"
-
 
 # Ensure Azure CLI is installed
 if ! command -v az &> /dev/null; then
@@ -189,6 +185,3 @@ fi
 echo "APP_INSIGHTS_KEY set (redacted for security)"
 
 export COSMOS_CONNECTION_STRING="AccountEndpoint=$COSMOS_DB_ENDPOINT;AccountKey=$COSMOS_DB_KEY;"
-
-
-echo "Environment variables successfully configured."
