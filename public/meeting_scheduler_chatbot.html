@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meeting Scheduler Chatbot Setup Guide</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; line-height: 1.6; color: #333; }
+        h1, h2 { color: #2c3e50; }
+        h3 { color: #34495e; }
+        pre { background: #f4f4f4; padding: 15px; border-radius: 5px; overflow-x: auto; }
+        code { font-family: 'Courier New', Courier, monospace; }
+        .step { margin-bottom: 20px; }
+        .note { color: #e74c3c; font-weight: bold; }
+        a { color: #1e90ff; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <h1>Meeting Scheduler Chatbot Setup Guide</h1>
+    <p>This guide walks you through creating a web-based chatbot using Azure and DeepSeek API. The chatbot schedules meetings, queries upcoming meetings, and displays processed tasks. It uses Azure App Service for the web interface, Azure Functions for background processing, and Azure Cosmos DB for storage. Source code is available at <a href="https://github.com/aparmarthi1/ai-python-scripts">GitHub</a>.</p>
+
+    <h2>Application Overview</h2>
+    <p><strong>What it does:</strong> Users can submit tasks (e.g., "Schedule a meeting for tomorrow at 10 AM") via a web form, which are stored in Cosmos DB. An Azure Function processes tasks using the DeepSeek API to refine them into structured JSON (e.g., task name, date, priority). Users can query "When is the next meeting?" to see the earliest upcoming meeting, and the interface displays processed meetings.</p>
+    <p><strong>What it does not do:</strong> No complex NLP, notifications, real-time chat, or additional metadata. Input validation ensures only meeting-related tasks are accepted.</p>
+    <p><strong>Prerequisites:</strong> Free Azure account, DeepSeek API key, Azure CLI, Python 3.8+, and a code editor.</p>
+
+    <h2>Setup Steps</h2>
+
+    <div class="step">
+        <h3>Step 1: Sign Up for Azure and DeepSeek</h3>
+        <p>Create accounts to access required services.</p>
+        <ul>
+            <li>Sign up for a free Azure account at <a href="https://azure.microsoft.com/free">azure.microsoft.com/free</a> to get $200 in credits.</li>
+            <li>Obtain a DeepSeek API key from <a href="https://www.deepseek.com">deepseek.com</a>.</li>
+        </ul>
+    </div>
+
+    <div class="step">
+        <h3>Step 2: Install Azure CLI and Python</h3>
+        <p>Install tools to deploy and manage the application.</p>
+        <ul>
+            <li>Install Azure CLI: <a href="https://docs.microsoft.com/cli/azure/install-azure-cli">docs.microsoft.com/cli/azure/install-azure-cli</a>.</li>
+            <li>Install Python 3.8+: <a href="https://www.python.org/downloads">python.org/downloads</a>.</li>
+            <li>Run <code>az login</code> to authenticate with Azure.</li>
+        </ul>
+    </div>
+
+    <div class="step">
+        <h3>Step 3: Create Project Directory Structure</h3>
+        <p>Organize files for the Flask app and Azure Function.</p>
+        <pre><code>mkdir meeting-scheduler
+cd meeting-scheduler
+mkdir -p app templates check_tasks
+touch setup-env.sh app/app.py app/requirements.txt templates/index.html check_tasks/task-checker-fn.py check_tasks/requirements.txt check_tasks/function.json check_tasks/host.json
+</code></pre>
+    </div>
+
+    <div class="step">
+        <h3>Step 4: Create Environment Setup Script</h3>
+        <p>Define environment variables for Azure and DeepSeek.</p>
+        <pre><code># setup-env.sh
+export AGENTICAI_RG="meeting-scheduler-rg"
+export AGENTICAI_APP_SRV="meetingschedulerapp$(date +%s)"
+export AGENTICAI_TASK_CHECKER_FN_APP="meetingschedulerfn$(date +%s)"
+export AGENTICAI_COSMOS_DB="meetingschedulerdb$(date +%s)"
+export AGENTICAI_APP_DIR="$PWD/app"
+export AGENTICAI_FN_DIR="$PWD/check_tasks"
+export AGENTICAI_APP_ZIP="$PWD/webapp.zip"
+export AGENTICAI_FN_ZIP="$PWD/function-app.zip"
+export DS_API_URL="https://api.deepseek.com"
+export DS_API_KEY="your-deepseek-api-key"
+export COSMOS_DATABASE_NAME="taskdb"
+export COSMOS_CONTAINER_NAME="task"
+</code></pre>
+        <p class="note">Replace <code>your-deepseek-api-key</code> with your actual DeepSeek API key.</p>
+        <p>Download: <a href="https://raw.githubusercontent.com/aparmarthi1/ai-python-scripts/main/scripts/meeting_scheduler/setup-env.sh">setup-env.sh</a></p>
+    </div>
+
+    <div class="step">
+        <h3>Step 5: Create Flask App Code</h3>
+        <p>Implement the web interface to handle task submissions and queries.</p>
+        <pre><code># app/app.py
+from flask import Flask, request, render_template
+import json
+import requests
+from azure.cosmos import CosmosClient
+import os
+from datetime import datetime, date, timedelta
+import logging
+from time import sleep
+
+app = Flask(__name__)
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# DeepSeek API configuration
+DS_API_URL = os.getenv("DS_API_URL")
+DS_API_KEY = os.getenv("DS_API_KEY")
+logger.info(f"DS_API_URL: {DS_API_URL}, DS_API_KEY: {'set' if DS_API_KEY else 'not set'}")
+headers = {"Authorization": f"Bearer {DS_API_KEY}", "Content-Type": "application/json"} if DS_API_KEY else None
+
+def get_cosmos_client():
+    """Initialize Cosmos DB client on demand."""
+    cosmos_endpoint = os.getenv("COSMOS_DB_ENDPOINT")
+    cosmos_key = os.getenv("COSMOS_DB_KEY")
+    logger.info(f"Cosmos DB Endpoint: {cosmos_endpoint}, Key: {'set' if cosmos_key else 'not set'}")
+    if not cosmos_endpoint or not cosmos_key:
+        logger.error("Cosmos DB endpoint or key is missing")
+        raise Exception("Cosmos DB configuration missing")
+    try:
+        client = CosmosClient(cosmos_endpoint, cosmos_key)
+        database = client.get_database_client(os.getenv("COSMOS_DATABASE_NAME"))
+        container = database.get_container_client(os.getenv("COSMOS_CONTAINER_NAME"))
+        return container
+    except Exception as e:
+        logger.error(f"Failed to initialize Cosmos DB: {str(e)}")
+        raise
+
+def call_deepseek_api(prompt, max_retries=3, initial_delay=5):
+    """Call DeepSeek API with retry logic for 503 errors."""
+    logger.info(f"Attempting DeepSeek API call with prompt: {prompt[:50]}...")
+    if not DS_API_URL or not DS_API_KEY:
+        logger.error("DeepSeek API URL or Key is missing. Using fallback.")
+        raise Exception("DeepSeek API configuration missing")
+    
+    for attempt in range(max_retries):
+        try:
+            payload = {
+                "model": "deepseek-chat",
+                "messages": [
+                    {"role": "system", "content": "You are a helpful assistant that outputs JSON."},
+                    {"role": "user", "content": prompt}
+                ],
+                "max_tokens": 200,
+                "temperature": 0.5
+            }
+            logger.info(f"Making request to {DS_API_URL}/v1/chat/completions")
+            response = requests.post(DS_API_URL + "/v1/chat/completions", headers=headers, json=payload, timeout=60)
+            response.raise_for_status()
+            return response.json()
+        except requests.exceptions.HTTPError as e:
+            if response.status_code == 503:
+                logger.warning(f"503 error on attempt {attempt + 1}: {str(e)}")
+                delay = initial_delay * (2 ** attempt)
+                sleep(delay)
+                continue
+            else:
+                logger.error(f"API error: {str(e)}")
+                raise Exception(f"API Error: {str(e)}")
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Request error: {str(e)}")
+            raise Exception(f"Request Error: {str(e)}")
+    raise Exception("Max retries reached for DeepSeek API")
+
+def parse_task_fallback(task_input):
+    """Fallback parsing for tasks."""
+    logger.info(f"Using fallback parsing for task: {task_input[:50]}")
+    try:
+        tomorrow = (date.today() + timedelta(days=1)).isoformat() + "T10:00:00Z"
+        return {
+            "task_name": task_input[:50],
+            "due_date": tomorrow,
+            "priority": "Medium"
+        }
+    except Exception as e:
+        logger.error(f"Fallback parsing error: {str(e)}")
+        raise Exception("Failed to parse task with fallback")
+
+def is_query(input_text):
+    """Check if the input is a query (e.g., 'When is the next meeting?')."""
+    query_keywords = ["when is", "next meeting", "upcoming meeting"]
+    return any(keyword in input_text.lower() for keyword in query_keywords)
+
+def get_next_meeting():
+    """Query Cosmos DB for the next meeting."""
+    try:
+        container = get_cosmos_client()
+        query = f"SELECT c.task_name, c.due_date, c.priority, c.processed FROM c WHERE c.due_date >= '{datetime.utcnow().isoformat()}Z' ORDER BY c.due_date ASC"
+        tasks = list(container.query_items(query, enable_cross_partition_query=True))
+        if tasks:
+            return tasks[0]
+        return None
+    except Exception as e:
+        logger.error(f"Error querying Cosmos DB: {str(e)}")
+        raise Exception(f"Failed to query next meeting: {str(e)}")
+
+def get_processed_tasks():
+    """Query Cosmos DB for processed tasks."""
+    try:
+        container = get_cosmos_client()
+        query = f"SELECT c.task_name, c.due_date, c.priority FROM c WHERE c.processed = true ORDER BY c.due_date ASC"
+        tasks = list(container.query_items(query, enable_cross_partition_query=True))
+        return tasks
+    except Exception as e:
+        logger.error(f"Error querying processed tasks: {str(e)}")
+        return []
+
+def validate_task_input(input_text):
+    """Basic validation to check if input resembles a meeting task."""
+    task_keywords = ["schedule", "meeting", "call", "sync", "appointment"]
+    time_indicators = ["tomorrow", "today", "at", "on", "next"]
+    input_lower = input_text.lower()
+    return any(keyword in input_lower for keyword in task_keywords) or any(indicator in input_lower for indicator in time_indicators)
+
+@app.route('/', methods=['GET', 'POST'])
+def index():
+    """Handle task submission, queries, and display processed tasks."""
+    logger.info("Handling request to /")
+    processed_tasks = get_processed_tasks()  # Fetch processed tasks for display
+    if request.method == 'POST':
+        user_input = request.form['task'].strip()
+        logger.info(f"Received input: {user_input}")
+        try:
+            if is_query(user_input):
+                # Handle query for next meeting
+                next_meeting = get_next_meeting()
+                if next_meeting:
+                    response = f"Next meeting: {next_meeting['task_name']} on {next_meeting['due_date']} (Priority: {next_meeting['priority']}, Processed: {next_meeting['processed']})"
+                else:
+                    response = "No upcoming meetings found."
+                return render_template('index.html', response=response, suggestion=None, processed_tasks=processed_tasks)
+            else:
+                # Validate task input
+                if not validate_task_input(user_input):
+                    logger.warning(f"Invalid task input: {user_input}")
+                    return render_template('index.html', response="Error: Input does not appear to be a valid meeting task.", suggestion=None, processed_tasks=processed_tasks)
+
+                # Process task submission
+                task_data = parse_task_fallback(user_input)
+                task_data['id'] = str(datetime.now().timestamp())
+                task_data['created_at'] = datetime.now().isoformat()
+                task_data['processed'] = False
+                container = get_cosmos_client()
+                container.create_item(task_data)
+                logger.info(f"Task stored in Cosmos DB: {task_data['id']}")
+                return render_template('index.html', response="Task added successfully! Processing in background.", suggestion="Awaiting suggestion from background process.", processed_tasks=processed_tasks)
+        except Exception as e:
+            logger.error(f"Error processing request: {str(e)}")
+            return render_template('index.html', response=f"Error: {str(e)}", suggestion=None, processed_tasks=processed_tasks)
+    return render_template('index.html', processed_tasks=processed_tasks)
+
+if __name__ == '__main__':
+    logger.info("Starting Flask app")
+    port = int(os.getenv("AGENTICAI_APP_PORT", 8000))
+    app.run(host="0.0.0.0", port=port, debug=True)
+</code></pre>
+        <p>Download: <a href="https://raw.githubusercontent.com/aparmarthi1/ai-python-scripts/main/scripts/meeting_scheduler/flask_app/app.py">app.py</a></p>
+    </div>
+
+    <div class="step">
+        <h3>Step 6: Create Flask App Requirements</h3>
+        <p>Specify Python dependencies for the Flask app.</p>
+        <pre><code># app/requirements.txt
+Flask==2.0.1
+requests==2.26.0
+azure-cosmos==4.2.0
+</code></pre>
+        <p>Download: <a href="https://raw.githubusercontent.com/aparmarthi1/ai-python-scripts/main/scripts/meeting_scheduler/flask_app/requirements.txt">requirements.txt</a></p>
+    </div>
+
+    <div class="step">
+        <h3>Step 7: Create Web Interface</h3>
+        <p>Design the HTML interface for user interaction.</p>
+        <pre><code># templates/index.html
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Meeting Scheduler Chatbot</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        h1, h2 { color: #2c3e50; }
+        .response { color: green; }
+        .error { color: red; }
+        .suggestion { color: blue; }
+        .task-list { margin-top: 20px; }
+        .task-item { padding: 5px; }
+    </style>
+</head>
+<body>
+    <h1>Meeting Scheduler Chatbot</h1>
+    <p>This chatbot uses two worker agents (Task Parser and Suggestion) coordinated by a master agent to schedule tasks and provide proactive suggestions.</p>
+    <form method="POST">
+        <label for="task">Enter Task or Query (e.g., "Schedule a meeting for tomorrow at 10 AM" or "When is the next meeting?"):</label><br>
+        <input type="text" id="task" name="task" required><br>
+        <input type="submit" value="Submit">
+    </form>
+    {% if response %}
+        <h2>Response:</h2>
+        <p class="{% if 'Error' in response %}error{% else %}response{% endif %}">{{ response }}</p>
+    {% endif %}
+    {% if suggestion %}
+        <h2>Suggestion:</h2>
+        <p class="suggestion">{{ suggestion }}</p>
+    {% endif %}
+    {% if processed_tasks %}
+        <h2>Upcoming Meetings:</h2>
+        <div class="task-list">
+            {% for task in processed_tasks %}
+                <div class="task-item">Meeting: {{ task.task_name }} on {{ task.due_date }} (Priority: {{ task.priority }})</div>
+            {% endfor %}
+        </div>
+    {% endif %}
+</body>
+</html>
+</code></pre>
+        <p>Download: <a href="https://raw.githubusercontent.com/aparmarthi1/ai-python-scripts/main/scripts/meeting_scheduler/flask_app/index.html">index.html</a></p>
+    </div>
+
+    <div class="step">
+        <h3>Step 8: Create Azure Function Code</h3>
+        <p>Implement the background task processor using DeepSeek API.</p>
+        <pre><code># check_tasks/task-checker-fn.py
+import azure.functions as func
+import json
+import requests
+import os
+import logging
+from datetime import date, timedelta
+from azure.cosmos import CosmosClient
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# DeepSeek API configuration
+DS_API_URL = os.getenv("DS_API_URL")
+DS_API_KEY = os.getenv("DS_API_KEY")
+logger.info(f"DS_API_URL: {DS_API_URL}, DS_API_KEY: {'set' if DS_API_KEY else 'not set'}")
+headers = {"Authorization": f"Bearer {DS_API_KEY}", "Content-Type": "application/json"} if DS_API_KEY else None
+
+def parse_task_fallback(task_input):
+    """Fallback parsing if DeepSeek API fails."""
+    logger.info(f"Using fallback parsing for task: {task_input[:50]}")
+    try:
+        tomorrow = (date.today() + timedelta(days=1)).isoformat() + "T10:00:00Z"
+        return {
+            "task_name": task_input[:50],
+            "due_date": tomorrow,
+            "priority": "Medium",
+            "processed": True
+        }
+    except Exception as e:
+        logger.error(f"Fallback parsing error: {str(e)}")
+        raise Exception("Failed to parse task with fallback")
+
+def call_deepseek_api(prompt, max_retries=3, initial_delay=5):
+    """Call DeepSeek API with retry logic for 503 errors."""
+    logger.info(f"Attempting DeepSeek API call with prompt: {prompt[:50]}...")
+    if not DS_API_URL or not DS_API_KEY:
+        logger.error("DeepSeek API URL or Key is missing. Using fallback.")
+        raise Exception("DeepSeek API configuration missing")
+    
+    for attempt in range(max_retries):
+        try:
+            payload = {
+                "model": "deepseek-chat",
+                "messages": [
+                    {"role": "system", "content": "You are a helpful assistant that outputs JSON."},
+                    {"role": "user", "content": prompt}
+                ],
+                "max_tokens": 200,
+                "temperature": 0.5
+            }
+            logger.info(f"Making request to {DS_API_URL}/v1/chat/completions")
+            response = requests.post(DS_API_URL + "/v1/chat/completions", headers=headers, json=payload, timeout=60)
+            response.raise_for_status()
+            return response.json()
+        except requests.exceptions.HTTPError as e:
+            if response.status_code == 503:
+                logger.warning(f"503 error on attempt {attempt + 1}: {str(e)}")
+                import time
+                time.sleep(initial_delay * (2 ** attempt))
+                continue
+            else:
+                logger.error(f"API error: {str(e)}")
+                raise Exception(f"API Error: {str(e)}")
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Request error: {str(e)}")
+            raise Exception(f"Request Error: {str(e)}")
+    raise Exception("Max retries reached for DeepSeek API")
+
+def main(req: func.DocumentList) -> func.Document:
+    """Cosmos DB trigger to process new tasks."""
+    logger.info("Function triggered by Cosmos DB change.")
+    if not req:
+        logger.warning("No documents received.")
+        return None
+
+    try:
+        cosmos_endpoint = os.getenv("COSMOS_DB_ENDPOINT")
+        cosmos_key = os.getenv("COSMOS_DB_KEY")
+        logger.info(f"Cosmos DB Endpoint: {cosmos_endpoint}, Key: {'set' if cosmos_key else 'not set'}")
+        if not cosmos_endpoint or not cosmos_key:
+            logger.error("Cosmos DB endpoint or key is missing")
+            raise Exception("Cosmos DB configuration missing")
+        client = CosmosClient(cosmos_endpoint, cosmos_key)
+        database = client.get_database_client(os.getenv("COSMOS_DATABASE_NAME"))
+        container = database.get_container_client(os.getenv("COSMOS_CONTAINER_NAME"))
+
+        for doc in req:
+            task_input = doc.get("task_name", "")
+            if not task_input or doc.get("processed", False):
+                continue
+
+            parse_prompt = (
+                f"Return a JSON object with fields: task_name (string), due_date (ISO format string, e.g., '2025-07-19T10:00:00Z'), and priority (string, one of 'Low', 'Medium', 'High'). Output only the JSON object, enclosed in ```json\n...\n```.\n"
+                f"Task: {task_input}\n"
+                f"Example: ```json\n{{\"task_name\": \"Schedule a meeting\", \"due_date\": \"2025-07-19T10:00:00Z\", \"priority\": \"Medium\"}}\n```"
+            )
+            try:
+                parse_response = call_deepseek_api(parse_prompt)
+                generated_text = parse_response["choices"][0]["message"]["content"]
+                json_start = generated_text.find("```json\n") + 8
+                json_end = generated_text.rfind("\n```")
+                if json_start > 7 and json_end > json_start:
+                    json_str = generated_text[json_start:json_end]
+                    task_data = json.loads(json_str)
+                else:
+                    logger.warning(f"Invalid JSON format: {generated_text}. Using fallback.")
+                    task_data = parse_task_fallback(task_input)
+            except (json.JSONDecodeError, IndexError, KeyError, Exception) as e:
+                logger.warning(f"Invalid JSON response or error: {str(e)}. Using fallback.")
+                task_data = parse_task_fallback(task_input)
+
+            task_data["id"] = doc["id"]
+            task_data["created_at"] = doc.get("created_at")
+            task_data["processed"] = True
+            container.upsert_item(task_data)
+            logger.info(f"Processed task: {task_data['task_name']}")
+
+        return func.DocumentList(req)
+    except Exception as e:
+        logger.error(f"Error processing documents: {str(e)}")
+        raise
+</code></pre>
+        <p>Download: <a href="https://raw.githubusercontent.com/aparmarthi1/ai-python-scripts/main/scripts/meeting_scheduler/function_app/task-checker-fn.py">task-checker-fn.py</a></p>
+    </div>
+
+    <div class="step">
+        <h3>Step 9: Create Function App Requirements</h3>
+        <p>Specify Python dependencies for the Azure Function.</p>
+        <pre><code># check_tasks/requirements.txt
+azure-functions==1.7.2
+requests==2.26.0
+azure-cosmos==4.2.0
+</code></pre>
+        <p>Download: <a href="https://raw.githubusercontent.com/aparmarthi1/ai-python-scripts/main/scripts/meeting_scheduler/function_app/requirements.txt">requirements.txt</a></p>
+    </div>
+
+    <div class="step">
+        <h3>Step 10: Create Function App Configuration</h3>
+        <p>Configure the Cosmos DB trigger for the Azure Function.</p>
+        <pre><code># check_tasks/function.json
+{
+  "bindings": [
+    {
+      "type": "cosmosDBTrigger",
+      "name": "req",
+      "direction": "in",
+      "leaseCollectionName": "leases",
+      "connectionStringSetting": "COSMOS_CONNECTION_STRING",
+      "databaseName": "taskdb",
+      "collectionName": "task",
+      "createLeaseCollectionIfNotExists": true
+    }
+  ],
+  "scriptFile": "task-checker-fn.py"
+}
+</code></pre>
+        <p>Download: <a href="https://raw.githubusercontent.com/aparmarthi1/ai-python-scripts/main/scripts/meeting_scheduler/function_app/function.json">function.json</a></p>
+    </div>
+
+    <div class="step">
+        <h3>Step 11: Create Function App Host Configuration</h3>
+        <p>Define Azure Function app settings.</p>
+        <pre><code># check_tasks/host.json
+{
+  "version": "2.0",
+  "logging": {
+    "applicationInsights": {
+      "samplingSettings": {
+        "isEnabled": true
+      }
+    }
+  }
+}
+</code></pre>
+        <p>Download: <a href="https://raw.githubusercontent.com/aparmarthi1/ai-python-scripts/main/scripts/meeting_scheduler/function_app/host.json">host.json</a></p>
+    </div>
+
+    <div class="step">
+        <h3>Step 12: Create Azure Resource Group</h3>
+        <p>Create a resource group to organize Azure resources.</p>
+        <pre><code>source setup-env.sh
+az group create --name $AGENTICAI_RG --location eastus
+</code></pre>
+    </div>
+
+    <div class="step">
+        <h3>Step 13: Create Cosmos DB Account</h3>
+        <p>Set up Cosmos DB to store tasks.</p>
+        <pre><code>az cosmosdb create --name $AGENTICAI_COSMOS_DB --resource-group $AGENTICAI_RG --locations regionName=eastus
+az cosmosdb sql database create --account-name $AGENTICAI_COSMOS_DB --resource-group $AGENTICAI_RG --name $COSMOS_DATABASE_NAME
+az cosmosdb sql container create --account-name $AGENTICAI_COSMOS_DB --resource-group $AGENTICAI_RG --database-name $COSMOS_DATABASE_NAME --name $COSMOS_CONTAINER_NAME --partition-key-path "/id"
+</code></pre>
+    </div>
+
+    <div class="step">
+        <h3>Step 14: Get Cosmos DB Connection Details</h3>
+        <p>Retrieve endpoint and key for Cosmos DB.</p>
+        <pre><code>export COSMOS_DB_ENDPOINT=$(az cosmosdb show --name $AGENTICAI_COSMOS_DB --resource-group $AGENTICAI_RG --query documentEndpoint --output tsv)
+export COSMOS_DB_KEY=$(az cosmosdb keys list --name $AGENTICAI_COSMOS_DB --resource-group $AGENTICAI_RG --query primaryMasterKey --output tsv)
+export COSMOS_CONNECTION_STRING=$(az cosmosdb keys list --name $AGENTICAI_COSMOS_DB --resource-group $AGENTICAI_RG --query primaryMasterKey --output tsv --type connection-strings)
+</code></pre>
+    </div>
+
+    <div class="step">
+        <h3>Step 15: Create Azure App Service Plan and Web App</h3>
+        <p>Deploy the Flask app to Azure App Service.</p>
+        <pre><code>az appservice plan create --name meetingscheduler-plan --resource-group $AGENTICAI_RG --sku FREE
+az webapp create --name $AGENTICAI_APP_SRV --resource-group $AGENTICAI_RG --plan meetingscheduler-plan --runtime "PYTHON|3.8"
+</code></pre>
+    </div>
+
+    <div class="step">
+        <h3>Step 16: Create Azure Function App</h3>
+        <p>Deploy the Azure Function for background processing.</p>
+        <pre><code>az functionapp create --name $AGENTICAI_TASK_CHECKER_FN_APP --resource-group $AGENTICAI_RG --consumption-plan-location eastus --runtime python --runtime-version 3.8 --os-type Linux --functions-version 3
+</code></pre>
+    </div>
+
+    <div class="step">
+        <h3>Step 17: Configure Environment Variables</h3>
+        <p>Set environment variables for both apps.</p>
+        <pre><code>az webapp config appsettings set --name $AGENTICAI_APP_SRV --resource-group $AGENTICAI_RG --settings \
+  DS_API_URL="$DS_API_URL" \
+  DS_API_KEY="$DS_API_KEY" \
+  COSMOS_DB_ENDPOINT="$COSMOS_DB_ENDPOINT" \
+  COSMOS_DB_KEY="$COSMOS_DB_KEY" \
+  COSMOS_DATABASE_NAME="$COSMOS_DATABASE_NAME" \
+  COSMOS_CONTAINER_NAME="$COSMOS_CONTAINER_NAME"
+
+az functionapp config appsettings set --name $AGENTICAI_TASK_CHECKER_FN_APP --resource-group $AGENTICAI_RG --settings \
+  DS_API_URL="$DS_API_URL" \
+  DS_API_KEY="$DS_API_KEY" \
+  COSMOS_DB_ENDPOINT="$COSMOS_DB_ENDPOINT" \
+  COSMOS_DB_KEY="$COSMOS_DB_KEY" \
+  COSMOS_DATABASE_NAME="$COSMOS_DATABASE_NAME" \
+  COSMOS_CONTAINER_NAME="$COSMOS_CONTAINER_NAME" \
+  COSMOS_CONNECTION_STRING="$COSMOS_CONNECTION_STRING"
+</code></pre>
+    </div>
+
+    <div class="step">
+        <h3>Step 18: Deploy Flask App</h3>
+        <p>Package and deploy the Flask app to Azure.</p>
+        <pre><code>cd app
+zip -r ../webapp.zip app.py requirements.txt templates/
+cd ..
+az webapp deploy --name $AGENTICAI_APP_SRV --resource-group $AGENTICAI_RG --src-path $AGENTICAI_APP_ZIP --type zip
+</code></pre>
+    </div>
+
+    <div class="step">
+        <h3>Step 19: Deploy Function App</h3>
+        <p>Package and deploy the Azure Function.</p>
+        <pre><code>cd check_tasks
+zip -r ../function-app.zip task-checker-fn.py requirements.txt host.json function.json
+cd ..
+az functionapp deployment source config-zip --name $AGENTICAI_TASK_CHECKER_FN_APP --resource-group $AGENTICAI_RG --src $AGENTICAI_FN_ZIP --build-remote
+</code></pre>
+    </div>
+
+    <div class="step">
+        <h3>Step 20: Test the Application</h3>
+        <p>Verify the chatbot works by submitting tasks and queries.</p>
+        <pre><code>open http://$AGENTICAI_APP_SRV.azurewebsites.net
+</code></pre>
+        <p>Test inputs:
+            <ul>
+                <li>Task: "Schedule a meeting for tomorrow at 10 AM" (Expect: "Task added successfully! Processing in background.")</li>
+                <li>Query: "When is the next meeting?" (Expect: Details of the earliest meeting or "No upcoming meetings found.")</li>
+                <li>Invalid: "Hello world" (Expect: "Error: Input does not appear to be a valid meeting task.")</li>
+            </ul>
+        </p>
+    </div>
+
+    <div class="step">
+        <h3>Step 21: Monitor Logs</h3>
+        <p>Check logs to debug issues.</p>
+        <pre><code>az webapp log tail --name $AGENTICAI_APP_SRV --resource-group $AGENTICAI_RG
+az functionapp logstream --name $AGENTICAI_TASK_CHECKER_FN_APP --resource-group $AGENTICAI_RG
+</code></pre>
+    </div>
+
+    <h2>Troubleshooting</h2>
+    <ul>
+        <li><strong>Error: Invalid URL</strong>: Ensure <code>DS_API_URL</code> is set to <code>https://api.deepseek.com</code> in Azure settings.</li>
+        <li><strong>Cosmos DB Errors</strong>: Verify <code>COSMOS_DB_ENDPOINT</code> and <code>COSMOS_DB_KEY</code> using <code>az cosmosdb show</code> and <code>az cosmosdb keys list</code>.</li>
+        <li><strong>Function Not Triggering</strong>: Check <code>COSMOS_CONNECTION_STRING</code> and ensure the Cosmos DB trigger is configured.</li>
+        <li><strong>DeepSeek API Errors</strong>: Confirm the API key and use <code>deepseek-chat</code> model.</li>
+    </ul>
+
+    <h2>Extending the Application</h2>
+    <p>To enhance the chatbot, consider adding:
+        <ul>
+            <li>Email notifications for upcoming meetings.</li>
+            <li>Support for multi-turn conversations.</li>
+            <li>Authentication for multiple users.</li>
+            <li>More advanced NLP using DeepSeek for intent detection.</li>
+        </ul>
+    </p>
+    <p>Visit <a href="https://ai-python-solutions.com">AI Python Solutions</a> for more AI and migration tools.</p>
+
+</body>
+</html>
