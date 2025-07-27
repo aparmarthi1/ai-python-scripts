@@ -87,21 +87,41 @@
             <h3 class="text-xl font-semibold mb-4 mt-6 text-gray-800">Integration Tools</h3>
             <p class="text-gray-700 mb-4 text-lg">To create powerful agent tools, use platforms like Zapier, n8n, or Agent.ai to connect AI tools into cohesive workflows. These platforms automate tasks by linking APIs and triggering actions across apps.</p>
             <ul class="list-disc pl-6 text-gray-700 mb-4 text-lg">
-                <li class="mb-2"><strong>Zapier</strong>: Connects 5,000+ apps for automation. <br><em>Example</em>: Link ChatGPT to Canva for automated content and design workflows.</li>
-                <li class="mb-2"><strong>n8n</strong>: Open-source tool for complex automations. <br><em>Example</em>: Combine Claude and Synthesia for text-to-video pipelines.</li>
-                <li class="mb-2"><strong>Agent.ai</strong>: Builds custom AI agents. <br><em>Example</em>: Integrate Perplexity, Jasper, and Canva for marketing campaigns.</li>
+                <li class="mb-2"><strong>Zapier</strong>: Connects 5,000+ apps for automation. <br><em>Example</em>: Link ChatGPT to Canva for automated content and design workflows. <br><em>Pricing</em>: Free plan; $19/month; <a href="https://zapier.com" class="text-blue-500 hover:text-blue-700">zapier.com</a>.</li>
+                <li class="mb-2"><strong>n8n</strong>: Open-source tool for complex automations. <br><em>Example</em>: Combine Claude and Synthesia for text-to-video pipelines. <br><em>Pricing</em>: Free self-hosted; $20/month; <a href="https://n8n.io" class="text-blue-500 hover:text-blue-700">n8n.io</a>.</li>
+                <li class="mb-2"><strong>Agent.ai</strong>: Builds custom AI agents. <br><em>Example</em>: Integrate Perplexity, Jasper, and Canva for marketing campaigns. <br><em>Pricing</em>: Free plan; $29/month; <a href="https://agent.ai" class="text-blue-500 hover:text-blue-700">agent.ai</a>.</li>
+                <li class="mb-2"><strong>Make</strong>: Visual automation platform for custom workflows. <br><em>Example</em>: Automate data flow between Notion AI and Runway for content production. <br><em>Pricing</em>: Free plan; $9/month; <a href="https://www.make.com" class="text-blue-500 hover:text-blue-700">make.com</a>.</li>
+                <li class="mb-2"><strong>APIs and Custom Code</strong>: Use APIs for bespoke integrations. <br><em>Example</em>: Build a chatbot with Claude and Synthesia for video responses. <br><em>Pricing</em>: Varies (e.g., Google Cloud AI: $0.0001/1,000 characters after free tier).</li>
             </ul>
 
-            <h3 class="text-xl font-semibold mb-4 mt-6 text-gray-800">Example Workflow: Marketing Campaign Automation</h3>
-            <p class="text-gray-700 mb-4 text-lg">A small business can automate a product launch campaign using:</p>
+            <h3 class="text-xl font-semibold mb-4 mt-6 text-gray-800">Example: Stitching AI Tools into a Usable Agent Tool</h3>
+            <p class="text-gray-700 mb-4 text-lg"><strong>Scenario</strong>: A small business owner wants to automate a marketing campaign for a new product launch on social media. The goal is to create engaging content, design visuals, and schedule posts efficiently.</p>
+            <p class="text-gray-700 mb-4 text-lg"><strong>Tools Used</strong>:</p>
             <ul class="list-disc pl-6 text-gray-700 mb-4 text-lg">
-                <li class="mb-2"><strong>Perplexity</strong>: Research trending topics (free).</li>
-                <li class="mb-2"><strong>Jasper</strong>: Generate social media posts ($39/month).</li>
-                <li class="mb-2"><strong>Canva AI</strong>: Create visuals (free).</li>
-                <li class="mb-2"><strong>Zapier</strong>: Automate content scheduling ($19/month).</li>
-                <li class="mb-2"><strong>Buffer</strong>: Publish posts (free).</li>
+                <li class="mb-2"><strong>Perplexity (Research)</strong>: Gathers trending topics and competitor insights for the campaign.</li>
+                <li class="mb-2"><strong>Jasper (Content Creation)</strong>: Generates social media posts and email copy.</li>
+                <li class="mb-2"><strong>Canva AI (Design)</strong>: Creates visuals like Instagram posts and banners.</li>
+                <li class="mb-2"><strong>Zapier (Automation)</strong>: Connects the tools and schedules posts.</li>
+                <li class="mb-2"><strong>Buffer (Social Media Management)</strong>: Schedules and publishes posts.</li>
             </ul>
-            <p class="text-gray-700 mb-4 text-lg">Total cost: ~$58/month. This workflow saves hours by automating research, content creation, design, and publishing. Explore our <a href="https://raw.githubusercontent.com/aparmarthi1/ai-python-scripts/main/scripts/doc_based_chatbot.py" class="text-blue-500 hover:text-blue-700">doc-based chatbot script</a> to enhance automation with local LLMs.</p>
+            <p class="text-gray-700 mb-4 text-lg"><strong>Workflow</strong>:</p>
+            <ol class="list-decimal pl-6 text-gray-700 mb-4 text-lg">
+                <li class="mb-2"><strong>Research Phase</strong>: The user inputs a prompt into Perplexity (free plan) to research trending hashtags and competitor strategies for the product category (e.g., “What are the top social media trends for eco-friendly products in 2025?”). Perplexity provides a report with citations, which the user saves as a PDF.</li>
+                <li class="mb-2"><strong>Content Creation</strong>: The PDF is uploaded to Jasper ($39/month), which generates 10 social media posts and an email newsletter based on the research. Jasper’s templates ensure the tone matches the brand.</li>
+                <li class="mb-2"><strong>Design Phase</strong>: The generated text is sent to Canva AI (free plan) via Zapier ($19/month) to create visuals. Canva’s Text-to-Image feature generates a branded Instagram post based on the prompt: “Create an eco-friendly product banner with green tones.”</li>
+                <li class="mb-2"><strong>Automation and Publishing</strong>: Zapier automates the workflow by sending the Canva designs and Jasper posts to Buffer (free plan for 3 channels). Buffer schedules the posts across Instagram, Twitter, and LinkedIn over a week.</li>
+                <li class="mb-2"><strong>Monitoring</strong>: The user monitors engagement via Buffer’s analytics and uses Perplexity to research optimization strategies for the next campaign.</li>
+            </ol>
+            <p class="text-gray-700 mb-4 text-lg"><strong>Total Cost</strong>:</p>
+            <ul class="list-disc pl-6 text-gray-700 mb-4 text-lg">
+                <li class="mb-2">Perplexity: Free</li>
+                <li class="mb-2">Jasper: $39/month</li>
+                <li class="mb-2">Canva AI: Free</li>
+                <li class="mb-2">Zapier: $19/month</li>
+                <li class="mb-2">Buffer: Free</li>
+                <li class="mb-2"><strong>Total</strong>: $58/month (or less if using free plans for Jasper/Canva).</li>
+            </ul>
+            <p class="text-gray-700 mb-4 text-lg"><strong>Outcome</strong>: The business owner saves hours by automating research, content creation, design, and scheduling, resulting in a professional campaign launched in under a day. The agent tool (powered by Zapier) acts as a central hub, orchestrating tasks across AI platforms. Explore our <a href="https://raw.githubusercontent.com/aparmarthi1/ai-python-scripts/main/scripts/doc_based_chatbot.py" class="text-blue-500 hover:text-blue-700">doc-based chatbot script</a> to enhance automation with local LLMs.</p>
 
             <h3 class="text-xl font-semibold mb-4 mt-6 text-gray-800">Pricing Summary</h3>
             <div class="overflow-x-auto">
@@ -153,3 +173,4 @@
     </footer>
 </body>
 </html>
+
