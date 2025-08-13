@@ -1,0 +1,5 @@
+$schema: https://azuremlschemas.azureedge.net/latest/commandJob.schema.json
+code: ./src
+command: python train.py --data_path azureml://datastores/synapse_data/paths/gold/
+environment: azureml:AzureML-sklearn-1.0-ubuntu20.04-py38-cpu:1
+compute: azureml:cpu-cluster

@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Real-Time Sales Data Analytics Pipeline on Azure using Azure Data Factory, Synapse Analytics, Databricks, and more, with Python scripts for automation.">
+    <meta name="keywords" content="Azure, Data Pipeline, Data Factory, Synapse Analytics, Databricks, Stream Analytics, Event Hubs, Machine Learning, Power BI, Python">
+    <meta name="author" content="AI Python Solutions">
+    <title>Real-Time Sales Data Analytics Pipeline - AI Python Solutions</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        pre { overflow-x: auto; }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <header class="bg-blue-600 text-white py-6 text-center">
+        <div class="container mx-auto px-4">
+            <h1 class="text-3xl font-bold">Real-Time Sales Data Analytics Pipeline</h1>
+            <nav class="mt-4">
+                <a href="/index.html" class="text-white underline mx-4">Home</a>
+                <a href="https://github.com/aparmarthi1/ai-python-scripts" class="text-white underline mx-4">GitHub</a>
+            </nav>
+        </div>
+    </header>
+    <div class="container mx-auto px-4 py-12">
+        <div class="bg-white p-6 rounded-lg shadow-md" role="main">
+            <h2 class="text-2xl font-semibold mb-4 text-gray-800">Project Overview</h2>
+            <p class="text-gray-700 mb-4 text-lg">This project builds a real-time sales data analytics pipeline on Azure, leveraging an <strong>Azure free account</strong> with $200 in credits for 30 days. It processes retail sales data, ingesting transactions, storing raw data, transforming it, analyzing trends, predicting sales, and visualizing results.</p>
+            <p class="text-gray-700 mb-4 text-lg"><strong>Tools Used:</strong></p>
+            <ul class="list-disc pl-6 text-gray-700 mb-4 text-lg">
+                <li>Azure Data Factory</li>
+                <li>Azure Synapse Analytics</li>
+                <li>Azure Databricks</li>
+                <li>Azure Data Lake Storage</li>
+                <li>Azure Stream Analytics</li>
+                <li>Azure Event Hubs</li>
+                <li>Azure Analysis Services</li>
+                <li>Azure Machine Learning</li>
+                <li>Power BI</li>
+            </ul>
+
+            <h3 class="text-xl font-semibold mb-4 mt-6 text-gray-800">Conceptual Overview</h3>
+            <p class="text-gray-700 mb-4 text-lg"><strong>Objective</strong>: Create an end-to-end pipeline for processing sales data (product ID, quantity, price, timestamp).</p>
+            <p class="text-gray-700 mb-4 text-lg"><strong>Data Flow</strong>:</p>
+            <ul class="list-disc pl-6 text-gray-700 mb-4 text-lg">
+                <li><strong>Real-Time Ingestion</strong>: Azure Event Hubs captures transactions.</li>
+                <li><strong>Real-Time Processing</strong>: Azure Stream Analytics aggregates data.</li>
+                <li><strong>Storage</strong>: Azure Data Lake Storage (Bronze: raw, Silver: cleaned, Gold: aggregated).</li>
+                <li><strong>Batch Processing</strong>: Azure Data Factory with Databricks transformations.</li>
+                <li><strong>Analytics</strong>: Azure Synapse Analytics and Analysis Services.</li>
+                <li><strong>Machine Learning</strong>: Azure Machine Learning for predictions.</li>
+                <li><strong>Visualization</strong>: Power BI dashboards.</li>
+            </ul>
+            <p class="text-gray-700 mb-4 text-lg"><strong>Role of Each Tool</strong>:</p>
+            <ul class="list-disc pl-6 text-gray-700 mb-4 text-lg">
+                <li><strong>Azure Data Factory</strong>: Orchestrates data movement.</li>
+                <li><strong>Azure Synapse Analytics</strong>: Queries structured data.</li>
+                <li><strong>Azure Databricks</strong>: Spark-based transformations.</li>
+                <li><strong>Azure Data Lake Storage</strong>: Centralized storage.</li>
+                <li><strong>Azure Stream Analytics</strong>: Real-time processing.</li>
+                <li><strong>Azure Event Hubs</strong>: High-throughput ingestion.</li>
+                <li><strong>Azure Analysis Services</strong>: Semantic models.</li>
+                <li><strong>Azure Machine Learning</strong>: Predictive models.</li>
+                <li><strong>Power BI</strong>: Visualizes insights.</li>
+            </ul>
+
+            <h3 class="text-xl font-semibold mb-4 mt-6 text-gray-800">Initial Setup</h3>
+            <p class="text-gray-700 mb-4 text-lg">Set up Azure resources using the <code>pipeline_setup.sh</code> script. Ensure Azure CLI is installed and you are logged in (<code>az login</code>). Save the script, make it executable (<code>chmod +x pipeline_setup.sh</code>), and run it (<code>./pipeline_setup.sh</code>).</p>
+            <p><a class="text-blue-500 hover:text-blue-700" href="https://raw.githubusercontent.com/aparmarthi1/ai-python-scripts/main/scripts/pipeline_setup.sh" download>Download pipeline_setup.sh</a></p>
+            <pre class="bg-gray-100 p-4 rounded-lg"><code>#!/bin/bash
+
+# Variables
+resourceGroup="sales-pipeline-rg"
+location="eastus"
+dataFactoryName="salesDataFactory"
+storageAccountName="salesdatalake$(date +%s)"
+dataLakeName="salesdatalake"
+databricksWorkspaceName="sales-databricks"
+synapseWorkspaceName="sales-synapse"
+eventHubNamespace="sales-eventhub-ns"
+eventHubName="sales-events"
+streamAnalyticsJobName="sales-stream-job"
+analysisServicesName="sales-analysis"
+machineLearningWorkspaceName="sales-ml"
+powerBIName="sales-powerbi"
+
+# Step 1: Create Resource Group
+echo "Creating resource group: $resourceGroup"
+az group create --name $resourceGroup --location $location
+
+# Step 2: Create Azure Data Lake Storage Gen2
+echo "Creating storage account: $storageAccountName"
+az storage account create \
+  --name $storageAccountName \
+  --resource-group $resourceGroup \
+  --location $location \
+  --sku Standard_LRS \
+  --kind StorageV2 \
+  --enable-hierarchical-namespace true
+
+# Create containers (Bronze, Silver, Gold)
+az storage container create --name bronze --account-name $storageAccountName
+az storage container create --name silver --account-name $storageAccountName
+az storage container create --name gold --account-name $storageAccountName
+
+# Step 3: Create Azure Data Factory
+echo "Creating Azure Data Factory: $dataFactoryName"
+az datafactory create \
+  --name $dataFactoryName \
+  --resource-group $resourceGroup \
+  --location $location
+
+# Step 4: Create Azure Databricks Workspace
+echo "Creating Azure Databricks workspace: $databricksWorkspaceName"
+az databricks workspace create \
+  --name $databricksWorkspaceName \
+  --resource-group $resourceGroup \
+  --location $location \
+  --sku standard
+
+# Step 5: Create Azure Synapse Analytics Workspace
+echo "Creating Azure Synapse Analytics workspace: $synapseWorkspaceName"
+az synapse workspace create \
+  --name $synapseWorkspaceName \
+  --resource-group $resourceGroup \
+  --storage-account $storageAccountName \
+  --location $location \
+  --sql-admin-login-user user_id \
+  --sql-admin-login-password "your_password"
+
+# Step 6: Create Azure Event Hubs Namespace and Event Hub
+echo "Creating Event Hubs namespace: $eventHubNamespace"
+az eventhubs namespace create \
+  --name $eventHubNamespace \
+  --resource-group $resourceGroup \
+  --location $location \
+  --sku Basic
+
+echo "Creating Event Hub: $eventHubName"
+az eventhubs eventhub create \
+  --name $eventHubName \
+  --namespace-name $eventHubNamespace \
+  --resource-group $resourceGroup \
+  --partition-count 2
+
+# Step 7: Create Azure Stream Analytics Job
+echo "Creating Stream Analytics job: $streamAnalyticsJobName"
+az stream-analytics job create \
+  --name $streamAnalyticsJobName \
+  --resource-group $resourceGroup \
+  --location $location \
+  --output-error-policy Drop \
+  --events-outoforder-policy Drop \
+  --events-late-arrival-max-delay 5 \
+  --events-outoforder-max-delay 5
+
+# Step 8: Create Azure Analysis Services
+echo "Creating Azure Analysis Services: $analysisServicesName"
+az analysis-services server create \
+  --name $analysisServicesName \
+  --resource-group $resourceGroup \
+  --location $location \
+  --sku B1 \
+  --admin-users "user_id@example.com"
+
+# Step 9: Create Azure Machine Learning Workspace
+echo "Creating Azure Machine Learning workspace: $machineLearningWorkspaceName"
+az ml workspace create \
+  --name $machineLearningWorkspaceName \
+  --resource-group $resourceGroup \
+  --location $location
+
+# Step 10: Output instructions for Power BI
+echo "Power BI setup: Use Power BI Desktop to connect to Azure Synapse Analytics and Azure Analysis Services. Create a workspace in Power BI Service after signing in with your Azure account."
+
+echo "Setup complete! Check the Azure Portal to configure pipelines and services."
+</code></pre>
+
+            <h3 class="text-xl font-semibold mb-4 mt-6 text-gray-800">Post-Setup Steps</h3>
+
+            <h4 class="text-lg font-semibold mb-2 text-gray-800">1. Configure Azure Data Factory Pipeline</h4>
+            <p class="text-gray-700 mb-4 text-lg"><strong>Explanation</strong>: Creates a pipeline in Azure Data Factory (ADF) to orchestrate data movement and transformation. It includes a Copy Activity to ingest real-time sales data from Azure Event Hubs into the Bronze layer, Databricks Notebook Activities to transform data from Bronze to Silver (cleaned) and Silver to Gold (aggregated), and a Copy Activity to load Gold data into Azure Synapse Analytics.</p>
+            <p class="text-gray-700 mb-4 text-lg"><strong>How to Do It</strong>: Use the Azure Portal’s visual interface.</p>
+            <ul class="list-disc pl-6 text-gray-700 mb-4 text-lg">
+                <li>Navigate to the Azure Portal (portal.azure.com) and search for your Data Factory instance (<code>salesDataFactory</code>).</li>
+                <li>Click the Data Factory resource, then select <strong>Launch Studio</strong>.</li>
+                <li>In the left pane, go to <strong>Author</strong> (pencil icon).</li>
+                <li>Create Linked Services:
+                    <ul class="list-disc pl-6">
+                        <li>Click <strong>Manage</strong> &gt; <strong>Linked Services</strong> &gt; <strong>New</strong>.</li>
+                        <li><strong>Azure Event Hubs</strong>: Name: <code>EventHubLinkedService</code>. Select namespace (<code>sales-eventhub-ns</code>) and event hub (<code>sales-events</code>).</li>
+                        <li><strong>Azure Data Lake Storage Gen2</strong>: Name: <code>DataLakeLinkedService</code>. Select storage account (<code>salesdatalake&lt;timestamp&gt;</code>).</li>
+                        <li><strong>Azure Databricks</strong>: Name: <code>DatabricksLinkedService</code>. Select workspace (<code>sales-databricks</code>). Provide access token from Databricks.</li>
+                        <li><strong>Azure Synapse Analytics</strong>: Name: <code>SynapseLinkedService</code>. Select workspace (<code>sales-synapse</code>) and SQL pool (<code>SalesSQLPool</code>). Use authentication (username: <code>user_id</code>, password: <code>your_password</code>).</li>
+                    </ul>
+                </li>
+                <li>Create Datasets:
+                    <ul class="list-disc pl-6">
+                        <li>In <strong>Author</strong>, click <strong>Datasets</strong> &gt; <strong>New Dataset</strong>.</li>
+                        <li><strong>Event Hubs</strong>: Name: <code>EventHubDataset</code>. Link to <code>EventHubLinkedService</code>. Specify event hub (<code>sales-events</code>).</li>
+                        <li><strong>Data Lake (Bronze)</strong>: Name: <code>BronzeDataset</code>. Link to <code>DataLakeLinkedService</code>. Path: <code>bronze/sales/</code>. Format: JSON.</li>
+                        <li><strong>Data Lake (Silver)</strong>: Name: <code>SilverDataset</code>. Link to <code>DataLakeLinkedService</code>. Path: <code>silver/sales/</code>. Format: Parquet.</li>
+                        <li><strong>Data Lake (Gold)</strong>: Name: <code>GoldDataset</code>. Link to <code>DataLakeLinkedService</code>. Path: <code>gold/sales_aggregated/</code>. Format: Parquet.</li>
+                        <li><strong>Synapse</strong>: Name: <code>SynapseDataset</code>. Link to <code>SynapseLinkedService</code>. Select table (<code>GoldSales</code>).</li>
+                    </ul>
+                </li>
+                <li>Create Pipeline:
+                    <ul class="list-disc pl-6">
+                        <li>In <strong>Author</strong>, click <strong>Pipelines</strong> &gt; <strong>New Pipeline</strong>. Name: <code>SalesPipeline</code>.</li>
+                        <li>Add activities:
+                            <ul class="list-disc pl-6">
+                                <li><strong>Copy Activity</strong>: Name: <code>CopyFromEventHubToBronze</code>. Source: <code>EventHubDataset</code>. Sink: <code>BronzeDataset</code>.</li>
+                                <li><strong>Databricks Notebook</strong>: Name: <code>TransformBronzeToSilver</code>. Linked Service: <code>DatabricksLinkedService</code>. Notebook Path: <code>/Sales/TransformBronzeToSilver</code>.</li>
+                                <li><strong>Databricks Notebook</strong>: Name: <code>TransformSilverToGold</code>. Linked Service: <code>DatabricksLinkedService</code>. Notebook Path: <code>/Sales/TransformSilverToGold</code>.</li>
+                                <li><strong>Copy Activity</strong>: Name: <code>LoadToSynapse</code>. Source: <code>GoldDataset</code>. Sink: <code>SynapseDataset</code>.</li>
+                            </ul>
+                        </li>
+                        <li>Connect activities sequentially (drag arrows).</li>
+                    </ul>
+                </li>
+                <li>Click <strong>Validate</strong>, then <strong>Publish All</strong>. Trigger with <strong>Add Trigger</strong> &gt; <strong>Trigger Now</strong> or schedule.</li>
+            </ul>
+
+            <h4 class="text-lg font-semibold mb-2 text-gray-800">2. Configure Azure Databricks Notebook and Mount Storage</h4>
+            <p class="text-gray-700 mb-4 text-lg"><strong>Explanation</strong>: Creates PySpark notebooks in Azure Databricks to transform data from Bronze to Silver (cleaning) and Silver to Gold (aggregating). Mounts Data Lake Storage containers.</p>
+            <p class="text-gray-700 mb-4 text-lg"><strong>How to Do It</strong>: Use the Azure Portal.</p>
+            <p><a class="text-blue-500 hover:text-blue-700" href="https://raw.githubusercontent.com/aparmarthi1/ai-python-scripts/main/scripts/TransformBronzeToSilver.py" download>Download TransformBronzeToSilver.py</a></p>
+            <p><a class="text-blue-500 hover:text-blue-700" href="https://raw.githubusercontent.com/aparmarthi1/ai-python-scripts/main/scripts/TransformSilverToGold.py" download>Download TransformSilverToGold.py</a></p>
+            <ul class="list-disc pl-6 text-gray-700 mb-4 text-lg">
+                <li>Navigate to the Azure Portal and search for your Databricks workspace (<code>sales-databricks</code>).</li>
+                <li>Launch the workspace.</li>
+                <li>In <strong>Workspace</strong>, select <strong>Create</strong> &gt; <strong>Notebook</strong>.</li>
+                <li>Create notebook <code>TransformBronzeToSilver</code> (PySpark).</li>
+                <li>Create notebook <code>TransformSilverToGold</code> (PySpark).</li>
+                <li>Run the notebooks to test.</li>
+            </ul>
+
+            <h4 class="text-lg font-semibold mb-2 text-gray-800">3. Configure Azure Stream Analytics Query, Inputs, and Outputs</h4>
+            <p class="text-gray-700 mb-4 text-lg"><strong>Explanation</strong>: Defines a query in Azure Stream Analytics to aggregate real-time sales data from Event Hubs. Sets inputs from Event Hubs and outputs to Data Lake Storage and Power BI.</p>
+            <p class="text-gray-700 mb-4 text-lg"><strong>How to Do It</strong>: Use Azure CLI.</p>
+            <pre class="bg-gray-100 p-4 rounded-lg"><code># Create input from Event Hubs
+az stream-analytics input create --job-name $streamAnalyticsJobName --name "SalesInput" --resource-group $resourceGroup --properties "{\"type\":\"Stream\",\"datasource\":{\"type\":\"Microsoft.ServiceBus/EventHub\",\"properties\":{\"eventHubName\":\"$eventHubName\",\"serviceBusNamespace\":\"$eventHubNamespace\"}}}"
+
+# Create output to Data Lake Storage (Bronze)
+az stream-analytics output create --job-name $streamAnalyticsJobName --name "BronzeOutput" --resource-group $resourceGroup --datasource "{\"type\":\"Microsoft.Storage/Blob\",\"properties\":{\"storageAccounts\":[{\"accountName\":\"$storageAccountName\"}],\"container\":\"bronze\",\"pathPattern\":\"sales/{date}/{time}\"}}"
+
+# Create output to Power BI
+az stream-analytics output create --job-name $streamAnalyticsJobName --name "PowerBIOutput" --resource-group $resourceGroup --datasource "{\"type\":\"PowerBI\",\"properties\":{\"dataset\":\"SalesRealTime\",\"table\":\"HourlySales\",\"groupId\":\"your-powerbi-group-id\",\"groupName\":\"your-powerbi-group-name\"}}"
+
+# Update job with query
+az stream-analytics job update --job-name $streamAnalyticsJobName --resource-group $resourceGroup --transformation "{\"name\":\"Transformation\",\"properties\":{\"streamingUnits\":1,\"query\":\"SELECT ProductID, SUM(Quantity) as TotalQuantity INTO BronzeOutput, PowerBIOutput FROM SalesInput GROUP BY ProductID, TumblingWindow(hour, 1)\"}}"
+
+# Start the job
+az stream-analytics job start --job-name $streamAnalyticsJobName --resource-group $resourceGroup --output-start-mode "JobStartTime"
+</code></pre>
+
+            <h4 class="text-lg font-semibold mb-2 text-gray-800">4. Configure Azure Event Hubs Producer for Mock Data</h4>
+            <p class="text-gray-700 mb-4 text-lg"><strong>Explanation</strong>: Sets up a Python script to send mock sales data to Event Hubs.</p>
+            <p class="text-gray-700 mb-4 text-lg"><strong>How to Do It</strong>: Use a Python script with the Azure Event Hubs SDK. Install SDK (<code>pip install azure-eventhub</code>).</p>
+            <p><a class="text-blue-500 hover:text-blue-700" href="https://raw.githubusercontent.com/aparmarthi1/ai-python-scripts/main/scripts/send_mock_data.py" download>Download send_mock_data.py</a></p>
+            <p class="text-gray-700 mb-4 text-lg">Run: <code>python send_mock_data.py</code></p>
+
+            <h4 class="text-lg font-semibold mb-2 text-gray-800">5. Configure Azure Synapse Analytics SQL Pool and Queries</h4>
+            <p class="text-gray-700 mb-4 text-lg"><strong>Explanation</strong>: Creates a SQL pool in Synapse to store and query aggregated data, defining KPIs.</p>
+            <p class="text-gray-700 mb-4 text-lg"><strong>How to Do It</strong>: Use Azure CLI for the SQL pool, and the Azure Portal for queries.</p>
+            <p><a class="text-blue-500 hover:text-blue-700" href="https://raw.githubusercontent.com/aparmarthi1/ai-python-scripts/main/scripts/synapse_queries.sql" download>Download synapse_queries.sql</a></p>
+            <pre class="bg-gray-100 p-4 rounded-lg"><code>az synapse sql pool create --name "SalesSQLPool" --performance-level "DW100c" --resource-group $resourceGroup --workspace-name $synapseWorkspaceName --storage-type LRS
+</code></pre>
+            <ul class="list-disc pl-6 text-gray-700 mb-4 text-lg">
+                <li>Go to your Synapse workspace &gt; <strong>Develop</strong> hub.</li>
+                <li>Create a new SQL script and run it.</li>
+            </ul>
+
+            <h4 class="text-lg font-semibold mb-2 text-gray-800">6. Configure Azure Analysis Services Tabular Model</h4>
+            <p class="text-gray-700 mb-4 text-lg"><strong>Explanation</strong>: Builds a semantic tabular model from Synapse data.</p>
+            <p class="text-gray-700 mb-4 text-lg"><strong>How to Do It</strong>: Use SQL Server Management Studio (SSMS).</p>
+            <ul class="list-disc pl-6 text-gray-700 mb-4 text-lg">
+                <li>In the Azure Portal, go to your Analysis Services server (<code>sales-analysis</code>).</li>
+                <li>Use SSMS to connect, create a tabular project, import data from Synapse SQL pool, add measures (e.g., Total Sales = SUM(GoldSales[TotalSales])), and deploy.</li>
+            </ul>
+
+            <h4 class="text-lg font-semibold mb-2 text-gray-800">7. Configure Azure Machine Learning Model</h4>
+            <p class="text-gray-700 mb-4 text-lg"><strong>Explanation</strong>: Trains a regression model using Synapse data to predict sales.</p>
+            <p class="text-gray-700 mb-4 text-lg"><strong>How to Do It</strong>: Use Azure CLI.</p>
+            <p><a class="text-blue-500 hover:text-blue-700" href="https://raw.githubusercontent.com/aparmarthi1/ai-python-scripts/main/scripts/job.yaml" download>Download job.yaml</a></p>
+            <pre class="bg-gray-100 p-4 rounded-lg"><code># Create model (after training)
+az ml model create --name "SalesPredictionModel" --version 1 --path "./model_path" --resource-group $resourceGroup --workspace-name $machineLearningWorkspaceName
+
+# For training
+az ml job create --file job.yaml --resource-group $resourceGroup --workspace-name $machineLearningWorkspaceName
+</code></pre>
+
+            <h4 class="text-lg font-semibold mb-2 text-gray-800">8. Configure Power BI Dashboards</h4>
+            <p class="text-gray-700 mb-4 text-lg"><strong>Explanation</strong>: Connects Power BI to Synapse and Analysis Services for visualizations.</p>
+            <p class="text-gray-700 mb-4 text-lg"><strong>How to Do It</strong>: Use Power BI Desktop and Power BI Service.</p>
+            <ul class="list-disc pl-6 text-gray-700 mb-4 text-lg">
+                <li>In Power BI Desktop, select <strong>Get Data</strong> &gt; <strong>Azure</strong> &gt; <strong>Azure Synapse Analytics (SQL DW)</strong>. Enter server (<code>sales-synapse.sql.azuresynapse.net</code>), database (<code>SalesSQLPool</code>), credentials (username: <code>user_id</code>, password: <code>your_password</code>).</li>
+                <li>Connect to Analysis Services similarly.</li>
+                <li>Create visuals (e.g., bar chart for total sales).</li>
+                <li>Publish to Power BI Service and share dashboards. Ensure Stream Analytics output is linked to a Power BI dataset.</li>
+            </ul>
+
+            <h3 class="text-xl font-semibold mb-4 mt-6 text-gray-800">Notes</h3>
+            <ul class="list-disc pl-6 text-gray-700 mb-4 text-lg">
+                <li><strong>Free Account</strong>: Use minimal resources (e.g., DW100c for Synapse, B1 for Analysis Services) to stay within $200 credit limit.</li>
+                <li><strong>Monitoring</strong>: Check costs in the Azure Portal under <strong>Cost Management</strong>.</li>
+                <li><strong>Industry Alignment</strong>: Uses a medallion architecture, mirroring enterprise practices.</li>
+            </ul>
+        </div>
+    </div>
+    <footer class="bg-gray-800 text-gray-300 py-6">
+        <div class="container mx-auto px-4 text-center">
+            <p>© 2025 AI Python Solutions. All rights reserved.</p>
+            <p class="mt-2">Hosted at <a href="https://ai-python-solutions.com" class="underline">ai-python-solutions.com</a></p>
+        </div>
+    </footer>
+</body>
+</html>
