@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Training a Simple Linear Regression Model on Azure</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        h1, h2, h3 {
+            color: #2c3e50;
+        }
+        pre {
+            background: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 14px;
+        }
+        .section {
+            margin-bottom: 20px;
+        }
+        .step {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Training a Simple Linear Regression Model on Azure</h1>
+    <p>This page demonstrates how to train a simple linear regression model using Python on the Azure Machine Learning platform with a free Azure account. It includes the Python code to train the model, deploy it, and steps to set it up in Azure ML Studio.</p>
+
+    <div class="section">
+        <h2>Overview</h2>
+        <p>We use a tiny dataset (<code>x,y</code> pairs where <code>y = 2x</code>) stored in Azure Blob Storage, train a linear regression model using scikit-learn, register it in Azure ML, and deploy it as a web service. The process uses Azure ML Studio's free tier compute and storage.</p>
+    </div>
+
+    <div class="section">
+        <h2>Dataset</h2>
+        <p>Create a CSV file named <code>simple_data.csv</code> with the following content and upload it to Azure Blob Storage via Azure ML Studio:</p>
+        <pre><code>x,y
+1,2
+2,4
+3,6
+4,8
+5,10</code></pre>
+    </div>
+
+    <div class="section">
+        <h2>Training Script</h2>
+        <p>This Python script loads the dataset from Azure storage, trains a linear regression model, and registers it. Run it in a Jupyter notebook in Azure ML Studio.</p>
+        <pre><code>import pandas as pd
+from azureml.core import Workspace, Dataset
+from sklearn.linear_model import LinearRegression
+import joblib
+from azureml.core.model import Model
+
+# Connect to Azure ML workspace
+ws = Workspace.from_config()
+
+# Load data from Azure Blob Storage
+dataset = Dataset.get_by_name(ws, name='simple-dataset')
+df = dataset.to_pandas_dataframe()
+X = df[['x']].values
+y = df['y'].values
+print("Data loaded from Azure Blob Storage:", df.head())
+
+# Train the model
+model = LinearRegression()
+model.fit(X, y)
+print("Model trained. Coefficient:", model.coef_[0])
+
+# Save and register the model
+joblib.dump(model, 'linear_model.pkl')
+registered_model = Model.register(workspace=ws,
+                                 model_path='linear_model.pkl',
+                                 model_name='simple-linear-model',
+                                 description='Simple linear regression model')
+print("Model registered:", registered_model.name)</code></pre>
+    </div>
+
+    <div class="section">
+        <h2>Scoring Script for Deployment</h2>
+        <p>This script (<code>score.py</code>) is used when deploying the model as a real-time endpoint in Azure ML.</p>
+        <pre><code>import joblib
+import json
+
+def init():
+    global model
+    model = joblib.load('model.pkl')
+
+def run(data):
+    input_data = json.loads(data)['data']
+    prediction = model.predict([[input_data]])
+    return {'prediction': prediction[0]}</code></pre>
+    </div>
+
+    <div class="section">
+        <h2>Steps to Train and Deploy on Azure</h2>
+        <ol class="step">
+            <li><strong>Create Azure ML Workspace</strong>: In <a href="https://portal.azure.com">Azure Portal</a>, create a Machine Learning workspace (free with your account).</li>
+            <li><strong>Upload Data</strong>: In Azure ML Studio (<a href="https://ml.azure.com">ml.azure.com</a>), upload <code>simple_data.csv</code> to the default Blob Storage and register it as a dataset named "simple-dataset".</li>
+            <li><strong>Create Compute</strong>: Set up a compute instance (e.g., Standard_DS3_v2) in Azure ML Studio for running scripts.</li>
+            <li><strong>Run Training Script</strong>: Create a notebook in Azure ML Studio, paste the training script, and execute it on the compute instance.</li>
+            <li><strong>Register Model</strong>: The script registers the model in Azure ML's model registry.</li>
+            <li><strong>Deploy Model</strong>: In Azure ML Studio, go to "Models", select "simple-linear-model", deploy to a real-time endpoint using Azure Container Instance, and provide <code>score.py</code>.</li>
+            <li><strong>Use Model</strong>: Test the endpoint with a POST request (e.g., <code>{'data': 6}</code> to predict <code>y=12</code>) using tools like Postman or Python's <code>requests</code>.</li>
+        </ol>
+    </div>
+
+    <div class="section">
+        <h2>Testing the Deployed Model</h2>
+        <p>Use this Python code locally to test the deployed endpoint:</p>
+        <pre><code>import requests
+import json
+
+endpoint_url = 'YOUR_ENDPOINT_URL'  # From Azure ML Studio
+scoring_uri = endpoint_url + '/score'
+headers = {'Content-Type': 'application/json'}
+data = json.dumps({'data': 6})
+response = requests.post(scoring_uri, data=data, headers=headers)
+print("Prediction:", response.json())</code></pre>
+    </div>
+
+    <div class="section">
+        <h2>Notes</h2>
+        <ul>
+            <li><strong>Data Storage</strong>: Stored in Azure Blob Storage (workspaceblobstore).</li>
+            <li><strong>Script Location</strong>: Kept in Azure ML Studio under "Notebooks" or as a job script.</li>
+            <li><strong>Cost</strong>: Free tier covers storage and basic compute; monitor costs in Azure Portal.</li>
+        </ul>
+    </div>
+</body>
+</html>

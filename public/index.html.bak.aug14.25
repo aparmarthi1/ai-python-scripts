@@ -41,13 +41,12 @@
             <h3 class="text-xl font-semibold mb-4 mt-6 text-gray-800">Python AI Solutions Scripts</h3>
             <ul class="list-disc pl-6 text-gray-700 mb-4 text-lg">
                 <li class="mb-2"><a href="/summary.html" class="text-blue-500 hover:text-blue-700">Generate Text Summaries from Files Using Locally Installed LLMs</a> – Create concise summaries of text documents with a Python script powered by local LLMs.</li>
-                <li class="mb-2"><a href="/inconsistency_finder.html" class="text-blue-500 hover:text-blue-700">Detect Inconsistencies in Files Using Locally Installed LLევ</li>
+                <li class="mb-2"><a href="/inconsistency_finder.html" class="text-blue-500 hover:text-blue-700">Detect Inconsistencies in Files Using Locally Installed LLMs</a> – Identify discrepancies across documents with an AI-driven Python script.</li>
                 <li class="mb-2"><a href="/doc_based_chatbot.html" class="text-blue-500 hover:text-blue-700">Document-Based Chatbot Powered by Locally Installed LLMs</a> – Build a chatbot that answers questions based on provided documents using local LLMs.</li>
                 <li class="mb-2"><a href="/postgres_chatbot.html" class="text-blue-500 hover:text-blue-700">Chatbot for Azure PostgreSQL Database Using Locally Installed LLMs</a> – Query and interact with Azure PostgreSQL databases through an AI-powered chatbot.</li>
                 <li class="mb-2"><a href="/oracledb_chatbot.html" class="text-blue-500 hover:text-blue-700">Chatbot for OCI Oracle Database Using Locally Installed LLMs</a> – Engage with OCI Oracle databases using a chatbot driven by local LLMs.</li>
                 <li class="mb-2"><a href="/meeting_scheduler_chatbot.html" class="text-blue-500 hover:text-blue-700">Meeting Scheduler Chatbot Using Azure and DeepSeek API</a> – Schedule and query meetings with a web-based chatbot powered by Azure and DeepSeek API.</li>
                 <li class="mb-2"><a href="/pipeline.html" class="text-blue-500 hover:text-blue-700">Real-Time Sales Data Analytics Pipeline on Azure</a> – Build a data pipeline for real-time sales analytics using Azure Data Factory, Synapse, Databricks, and more.</li>
-                <li class="mb-2"><a href="/train_linear_regression_azure.html" class="text-blue-500 hover:text-blue-700">Train a Simple Linear Regression Model on Azure</a> – Train and deploy a linear regression model using Azure Machine Learning with a free account.</li>
             </ul>
 
             <h3 class="text-xl font-semibold mb-4 mt-6 text-gray-800">Cloud Database Migration</h3>
