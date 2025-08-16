@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Machine Learning Algorithms for Industry</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        pre {
+            background-color: #2d2d2d;
+            color: #f8f8f2;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+        }
+        details summary {
+            cursor: pointer;
+            font-weight: bold;
+            padding: 0.5rem;
+            background-color: #e5e7eb;
+            border-radius: 0.25rem;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans">
+    <header class="bg-blue-600 text-white py-6">
+        <div class="container mx-auto px-4">
+            <h1 class="text-3xl font-bold">Machine Learning Algorithms for Industry</h1>
+            <p class="mt-2">A comprehensive guide to commonly used ML algorithms, their applications, and Python implementations on Azure.</p>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8">
+        <section class="mb-12">
+            <h2 class="text-2xl font-semibold mb-4">Overview</h2>
+            <p class="mb-4">Machine Learning algorithms are categorized based on their learning approach. Below, we list commonly used algorithms in industry, grouped into Supervised Learning, Unsupervised Learning, Ensemble Learning, Deep Learning, and Reinforcement Learning. Each includes a description, use cases, the best-suited Python library, and a template script for training on Azure with large datasets split into 10 parts.</p>
+        </section>
+
+        <!-- Supervised Learning -->
+        <section class="mb-12">
+            <h2 class="text-2xl font-semibold mb-4">Supervised Learning</h2>
+            <p class="mb-4">Algorithms that learn from labeled data to predict outcomes (regression for continuous, classification for discrete).</p>
+
+            <article class="mb-8">
+                <h3 class="text-xl font-medium mb-2">Linear Regression</h3>
+                <p><strong>Description:</strong> Models the linear relationship between input features and a continuous target by fitting a line to minimize prediction errors.</p>
+                <p><strong>Use Cases:</strong></p>
+                <ul class="list-disc pl-6">
+                    <li>Real Estate: Predicting house prices based on size and location.</li>
+                    <li>Finance: Forecasting stock trends from historical data.</li>
+                </ul>
+                <p><strong>Best Library:</strong> scikit-learn</p>
+                <details class="mt-2">
+                    <summary>View Python Script</summary>
+                    <pre>
+import os
+import pandas as pd
+from sklearn.linear_model import SGDRegressor
+from sklearn.preprocessing import StandardScaler
+from azure.storage.blob import BlobServiceClient
+
+# Azure Variables (Modify for actual use)
+azure_account_name = 'your_storage_account_name'
+azure_account_key = 'your_storage_account_key'
+container_name = 'your_container_name'
+blob_prefix = 'train_data_part_'
+num_parts = 10
+
+# Connect to Azure Blob Storage
+connect_str = f"DefaultEndpointsProtocol=https;AccountName={azure_account_name};AccountKey={azure_account_key};EndpointSuffix=core.windows.net"
+blob_service_client = BlobServiceClient.from_connection_string(connect_str)
+container_client = blob_service_client.get_container_client(container_name)
+
+# Initialize Model (Incremental with SGD)
+model = SGDRegressor()
+scaler = StandardScaler()
+
+# Train Sequentially
+for part in range(1, num_parts + 1):
+    blob_name = f"{blob_prefix}{part}.csv"
+    blob_client = container_client.get_blob_client(blob_name)
+    temp_file = f"temp_data_part_{part}.csv"
+    
+    with open(temp_file, "wb") as f:
+        download_stream = blob_client.download_blob()
+        f.write(download_stream.readall())
+    
+    df = pd.read_csv(temp_file)
+    X = df.drop('target', axis=1).values
+    y = df['target'].values
+    
+    # Scale and Partial Fit
+    scaler.partial_fit(X)
+    X_scaled = scaler.transform(X)
+    model.partial_fit(X_scaled, y)
+    
+    os.remove(temp_file)
+
+# Save Model
+import joblib
+joblib.dump(model, 'linear_regression_model.pkl')
+print("Training complete. Model saved.")
+                    </pre>
+                </details>
+            </article>
+
+            <article class="mb-8">
+                <h3 class="text-xl font-medium mb-2">Logistic Regression</h3>
+                <p><strong>Description:</strong> Uses a sigmoid function to model probabilities for binary or multi-class classification.</p>
+                <p><strong>Use Cases:</strong></p>
+                <ul class="list-disc pl-6">
+                    <li>Healthcare: Predicting disease risk (e.g., diabetic or not).</li>
+                    <li>Marketing: Classifying customer leads as likely to convert.</li>
+                </ul>
+                <p><strong>Best Library:</strong> scikit-learn</p>
+                <details class="mt-2">
+                    <summary>View Python Script</summary>
+                    <pre>
+import os
+import pandas as pd
+from sklearn.linear_model import SGDClassifier
+from sklearn.preprocessing import StandardScaler
+from azure.storage.blob import BlobServiceClient
+
+# Azure Variables (Modify for actual use)
+azure_account_name = 'your_storage_account_name'
+azure_account_key = 'your_storage_account_key'
+container_name = 'your_container_name'
+blob_prefix = 'train_data_part_'
+num_parts = 10
+
+# Connect to Azure Blob Storage
+connect_str = f"DefaultEndpointsProtocol=https;AccountName={azure_account_name};AccountKey={azure_account_key};EndpointSuffix=core.windows.net"
+blob_service_client = BlobServiceClient.from_connection_string(connect_str)
+container_client = blob_service_client.get_container_client(container_name)
+
+# Initialize Model (Incremental)
+model = SGDClassifier(loss='log_loss')
+scaler = StandardScaler()
+
+# Train Sequentially
+for part in range(1, num_parts + 1):
+    blob_name = f"{blob_prefix}{part}.csv"
+    blob_client = container_client.get_blob_client(blob_name)
+    temp_file = f"temp_data_part_{part}.csv"
+    
+    with open(temp_file, "wb") as f:
+        download_stream = blob_client.download_blob()
+        f.write(download_stream.readall())
+    
+    df = pd.read_csv(temp_file)
+    X = df.drop('target', axis=1).values
+    y = df['target'].values
+    
+    scaler.partial_fit(X)
+    X_scaled = scaler.transform(X)
+    model.partial_fit(X_scaled, y, classes=[0, 1])  # Assume binary; adjust classes
+    
+    os.remove(temp_file)
+
+import joblib
+joblib.dump(model, 'logistic_regression_model.pkl')
+print("Training complete. Model saved.")
+                    </pre>
+                </details>
+            </article>
+
+            <article class="mb-8">
+                <h3 class="text-xl font-medium mb-2">Decision Tree</h3>
+                <p><strong>Description:</strong> Builds a tree where nodes represent feature-based decisions, splitting data to minimize impurity.</p>
+                <p><strong>Use Cases:</strong></p>
+                <ul class="list-disc pl-6">
+                    <li>Banking: Approving loans by evaluating applicants.</li>
+                    <li>Retail: Segmenting customers for promotions.</li>
+                </ul>
+                <p><strong>Best Library:</strong> scikit-learn</p>
+                <details class="mt-2">
+                    <summary>View Python Script</summary>
+                    <pre>
+import os
+import pandas as pd
+from sklearn.tree import DecisionTreeClassifier
+from azure.storage.blob import BlobServiceClient
+import numpy as np
+
+# Note: Decision Trees are not inherently incremental. Here, we load all parts into memory progressively (assume parts fit individually).
+
+# Azure Variables (Modify for actual use)
+azure_account_name = 'your_storage_account_name'
+azure_account_key = 'your_storage_account_key'
+container_name = 'your_container_name'
+blob_prefix = 'train_data_part_'
+num_parts = 10
+
+# Connect to Azure Blob Storage
+connect_str = f"DefaultEndpointsProtocol=https;AccountName={azure_account_name};AccountKey={azure_account_key};EndpointSuffix=core.windows.net"
+blob_service_client = BlobServiceClient.from_connection_string(connect_str)
+container_client = blob_service_client.get_container_client(container_name)
+
+# Accumulate Data
+X_all, y_all = [], []
+for part in range(1, num_parts + 1):
+    blob_name = f"{blob_prefix}{part}.csv"
+    blob_client = container_client.get_blob_client(blob_name)
+    temp_file = f"temp_data_part_{part}.csv"
+    
+    with open(temp_file, "wb") as f:
+        download_stream = blob_client.download_blob()
+        f.write(download_stream.readall())
+    
+    df = pd.read_csv(temp_file)
+    X = df.drop('target', axis=1).values
+    y = df['target'].values
+    X_all.append(X)
+    y_all.append(y)
+    
+    os.remove(temp_file)
+
+X = np.vstack(X_all)
+y = np.hstack(y_all)
+
+# Train Model
+model = DecisionTreeClassifier()
+model.fit(X, y)
+
+import joblib
+joblib.dump(model, 'decision_tree_model.pkl')
+print("Training complete. Model saved.")
+                    </pre>
+                </details>
+            </article>
+
+            <article class="mb-8">
+                <h3 class="text-xl font-medium mb-2">Support Vector Machine (SVM)</h3>
+                <p><strong>Description:</strong> Finds a hyperplane that best separates classes, maximizing the margin between support vectors.</p>
+                <p><strong>Use Cases:</strong></p>
+                <ul class="list-disc pl-6">
+                    <li>Image Recognition: Classifying handwritten digits.</li>
+                    <li>Bioinformatics: Protein classification.</li>
+                </ul>
+                <p><strong>Best Library:</strong> scikit-learn</p>
+                <details class="mt-2">
+                    <summary>View Python Script</summary>
+                    <pre>
+import os
+import pandas as pd
+from sklearn.svm import LinearSVC  # Use LinearSVC for large data approx
+from sklearn.preprocessing import StandardScaler
+from azure.storage.blob import BlobServiceClient
+import numpy as np
+
+# Azure Variables (Modify for actual use)
+azure_account_name = 'your_storage_account_name'
+azure_account_key = 'your_storage_account_key'
+container_name = 'your_container_name'
+blob_prefix = 'train_data_part_'
+num_parts = 10
+
+# Connect to Azure Blob Storage
+connect_str = f"DefaultEndpointsProtocol=https;AccountName={azure_account_name};AccountKey={azure_account_key};EndpointSuffix=core.windows.net"
+blob_service_client = BlobServiceClient.from_connection_string(connect_str)
+container_client = blob_service_client.get_container_client(container_name)
+
+# Initialize (LinearSVC is faster for large data; no partial_fit, so accumulate)
+X_all, y_all = [], []
+scaler = StandardScaler()
+for part in range(1, num_parts + 1):
+    blob_name = f"{blob_prefix}{part}.csv"
+    blob_client = container_client.get_blob_client(blob_name)
+    temp_file = f"temp_data_part_{part}.csv"
+    
+    with open(temp_file, "wb") as f:
+        download_stream = blob_client.download_blob()
+        f.write(download_stream.readall())
+    
+    df = pd.read_csv(temp_file)
+    X = df.drop('target', axis=1).values
+    y = df['target'].values
+    X_all.append(X)
+    y_all.append(y)
+    
+    os.remove(temp_file)
+
+X = scaler.fit_transform(np.vstack(X_all))
+y = np.hstack(y_all)
+
+model = LinearSVC()
+model.fit(X, y)
+
+import joblib
+joblib.dump(model, 'svm_model.pkl')
+print("Training complete. Model saved.")
+                    </pre>
+                </details>
+            </article>
+
+            <article class="mb-8">
+                <h3 class="text-xl font-medium mb-2">K-Nearest Neighbors (KNN)</h3>
+                <p><strong>Description:</strong> Classifies data points based on the majority vote of the 'k' closest training examples.</p>
+                <p><strong>Use Cases:</strong></p>
+                <ul class="list-disc pl-6">
+                    <li>Recommendation Systems: Suggesting movies based on similar users.</li>
+                    <li>Anomaly Detection: Identifying fraudulent transactions.</li>
+                </ul>
+                <p><strong>Best Library:</strong> scikit-learn</p>
+                <details class="mt-2">
+                    <summary>View Python Script</summary>
+                    <pre>
+import os
+import pandas as pd
+from sklearn.neighbors import KNeighborsClassifier
+from azure.storage.blob import BlobServiceClient
+import numpy as np
+
+# Note: KNN stores all data; for large, use approximate like faiss, but here accumulate.
+
+# Azure Variables (Modify for actual use)
+azure_account_name = 'your_storage_account_name'
+azure_account_key = 'your_storage_account_key'
+container_name = 'your_container_name'
+blob_prefix = 'train_data_part_'
+num_parts = 10
+
+# Connect to Azure Blob Storage
+connect_str = f"DefaultEndpointsProtocol=https;AccountName={azure_account_name};AccountKey={azure_account_key};EndpointSuffix=core.windows.net"
+blob_service_client = BlobServiceClient.from_connection_string(connect_str)
+container_client = blob_service_client.get_container_client(container_name)
+
+X_all, y_all = [], []
+for part in range(1, num_parts + 1):
+    blob_name = f"{blob_prefix}{part}.csv"
+    blob_client = container_client.get_blob_client(blob_name)
+    temp_file = f"temp_data_part_{part}.csv"
+    
+    with open(temp_file, "wb") as f:
+        download_stream = blob_client.download_blob()
+        f.write(download_stream.readall())
+    
+    df = pd.read_csv(temp_file)
+    X = df.drop('target', axis=1).values
+    y = df['target'].values
+    X_all.append(X)
+    y_all.append(y)
+    
+    os.remove(temp_file)
+
+X = np.vstack(X_all)
+y = np.hstack(y_all)
+
+model = KNeighborsClassifier(n_neighbors=5)
+model.fit(X, y)
+
+import joblib
+joblib.dump(model, 'knn_model.pkl')
+print("Training complete. Model saved.")
+                    </pre>
+                </details>
+            </article>
+        </section>
+
+        <!-- Unsupervised Learning -->
+        <section class="mb-12">
+            <h2 class="text-2xl font-semibold mb-4">Unsupervised Learning</h2>
+            <p class="mb-4">Algorithms that find patterns in unlabeled data, such as clustering or dimensionality reduction.</p>
+
+            <article class="mb-8">
+                <h3 class="text-xl font-medium mb-2">K-Means Clustering</h3>
+                <p><strong>Description:</strong> Partitions data into 'k' clusters by minimizing variance within each cluster.</p>
+                <p><strong>Use Cases:</strong></p>
+                <ul class="list-disc pl-6">
+                    <li>Marketing: Grouping customers by purchasing patterns.</li>
+                    <li>Image Compression: Reducing colors in images.</li>
+                </ul>
+                <p><strong>Best Library:</strong> scikit-learn</p>
+                <details class="mt-2">
+                    <summary>View Python Script</summary>
+                    <pre>
+import os
+import pandas as pd
+from sklearn.cluster import MiniBatchKMeans  # Incremental version for large data
+from azure.storage.blob import BlobServiceClient
+
+# Azure Variables (Modify for actual use)
+azure_account_name = 'your_storage_account_name'
+azure_account_key = 'your_storage_account_key'
+container_name = 'your_container_name'
+blob_prefix = 'train_data_part_'
+num_parts = 10
+
+# Connect to Azure Blob Storage
+connect_str = f"DefaultEndpointsProtocol=https;AccountName={azure_account_name};AccountKey={azure_account_key};EndpointSuffix=core.windows.net"
+blob_service_client = BlobServiceClient.from_connection_string(connect_str)
+container_client = blob_service_client.get_container_client(container_name)
+
+# Initialize Model (MiniBatchKMeans for incremental)
+model = MiniBatchKMeans(n_clusters=3)
+
+# Train Sequentially
+for part in range(1, num_parts + 1):
+    blob_name = f"{blob_prefix}{part}.csv"
+    blob_client = container_client.get_blob_client(blob_name)
+    temp_file = f"temp_data_part_{part}.csv"
+    
+    with open(temp_file, "wb") as f:
+        download_stream = blob_client.download_blob()
+        f.write(download_stream.readall())
+    
+    df = pd.read_csv(temp_file)
+    X = df.values  # Assume no target for unsupervised
+    
+    model.partial_fit(X)
+    
+    os.remove(temp_file)
+
+import joblib
+joblib.dump(model, 'kmeans_model.pkl')
+print("Training complete. Model saved.")
+                    </pre>
+                </details>
+            </article>
+
+            <article class="mb-8">
+                <h3 class="text-xl font-medium mb-2">Principal Component Analysis (PCA)</h3>
+                <p><strong>Description:</strong> Reduces dataset dimensions by projecting onto principal components that capture maximum variance.</p>
+                <p><strong>Use Cases:</strong></p>
+                <ul class="list-disc pl-6">
+                    <li>Genomics: Reducing gene expression data for analysis.</li>
+                    <li>Finance: Simplifying stock market data for portfolio optimization.</li>
+                </ul>
+                <p><strong>Best Library:</strong> scikit-learn</p>
+                <details class="mt-2">
+                    <summary>View Python Script</summary>
+                    <pre>
+import os
+import pandas as pd
+from sklearn.decomposition import IncrementalPCA
+from azure.storage.blob import BlobServiceClient
+
+# Azure Variables (Modify for actual use)
+azure_account_name = 'your_storage_account_name'
+azure_account_key = 'your_storage_account_key'
+container_name = 'your_container_name'
+blob_prefix = 'train_data_part_'
+num_parts = 10
+
+# Connect to Azure Blob Storage
+connect_str = f"DefaultEndpointsProtocol=https;AccountName={azure_account_name};AccountKey={azure_account_key};EndpointSuffix=core.windows.net"
+blob_service_client = BlobServiceClient.from_connection_string(connect_str)
+container_client = blob_service_client.get_container_client(container_name)
+
+# Initialize Model (IncrementalPCA for large data)
+model = IncrementalPCA(n_components=2)
+
+# Train Sequentially
+for part in range(1, num_parts + 1):
+    blob_name = f"{blob_prefix}{part}.csv"
+    blob_client = container_client.get_blob_client(blob_name)
+    temp_file = f"temp_data_part_{part}.csv"
+    
+    with open(temp_file, "wb") as f:
+        download_stream = blob_client.download_blob()
+        f.write(download_stream.readall())
+    
+    df = pd.read_csv(temp_file)
+    X = df.values
+    
+    model.partial_fit(X)
+    
+    os.remove(temp_file)
+
+import joblib
+joblib.dump(model, 'pca_model.pkl')
+print("Training complete. Model saved.")
+                    </pre>
+                </details>
+            </article>
+        </section>
+
+        <!-- Ensemble Learning -->
+        <section class="mb-12">
+            <h2 class="text-2xl font-semibold mb-4">Ensemble Learning</h2>
+            <p class="mb-4">Combines multiple models for better performance, often using weak learners to build a strong model.</p>
+
+            <article class="mb-8">
+                <h3 class="text-xl font-medium mb-2">Random Forest</h3>
+                <p><strong>Description:</strong> Ensemble of decision trees trained on random data subsets, aggregating predictions for robustness.</p>
+                <p><strong>Use Cases:</strong></p>
+                <ul class="list-disc pl-6">
+                    <li>E-commerce: Recommending products based on user behavior.</li>
+                    <li>Medicine: Diagnosing diseases from genomic data.</li>
+                </ul>
+                <p><strong>Best Library:</strong> scikit-learn</p>
+                <details class="mt-2">
+                    <summary>View Python Script</summary>
+                    <pre>
+import os
+import pandas as pd
+from sklearn.ensemble import RandomForestClassifier
+from azure.storage.blob import BlobServiceClient
+import numpy as np
+
+# Note: Random Forest not incremental; accumulate data as above.
+
+# Azure Variables (Modify for actual use)
+azure_account_name = 'your_storage_account_name'
+azure_account_key = 'your_storage_account_key'
+container_name = 'your_container_name'
+blob_prefix = 'train_data_part_'
+num_parts = 10
+
+# Connect to Azure Blob Storage
+connect_str = f"DefaultEndpointsProtocol=https;AccountName={azure_account_name};AccountKey={azure_account_key};EndpointSuffix=core.windows.net"
+blob_service_client = BlobServiceClient.from_connection_string(connect_str)
+container_client = blob_service_client.get_container_client(container_name)
+
+X_all, y_all = [], []
+for part in range(1, num_parts + 1):
+    blob_name = f"{blob_prefix}{part}.csv"
+    blob_client = container_client.get_blob_client(blob_name)
+    temp_file = f"temp_data_part_{part}.csv"
+    
+    with open(temp_file, "wb") as f:
+        download_stream = blob_client.download_blob()
+        f.write(download_stream.readall())
+    
+    df = pd.read_csv(temp_file)
+    X = df.drop('target', axis=1).values
+    y = df['target'].values
+    X_all.append(X)
+    y_all.append(y)
+    
+    os.remove(temp_file)
+
+X = np.vstack(X_all)
+y = np.hstack(y_all)
+
+model = RandomForestClassifier(n_estimators=100)
+model.fit(X, y)
+
+import joblib
+joblib.dump(model, 'random_forest_model.pkl')
+print("Training complete. Model saved.")
+                    </pre>
+                </details>
+            </article>
+
+            <article class="mb-8">
+                <h3 class="text-xl font-medium mb-2">XGBoost</h3>
+                <p><strong>Description:</strong> Optimized gradient boosting that builds trees sequentially, focusing on errors from previous trees.</p>
+                <p><strong>Use Cases:</strong></p>
+                <ul class="list-disc pl-6">
+                    <li>Competitions: Winning Kaggle challenges for tabular data.</li>
+                    <li>Finance: Credit risk assessment.</li>
+                </ul>
+                <p><strong>Best Library:</strong> xgboost</p>
+                <details class="mt-2">
+                    <summary>View Python Script</summary>
+                    <pre>
+import os
+import pandas as pd
+import xgboost as xgb
+from azure.storage.blob import BlobServiceClient
+
+# Azure Variables (Modify for actual use)
+azure_account_name = 'your_storage_account_name'
+azure_account_key = 'your_storage_account_key'
+container_name = 'your_container_name'
+blob_prefix = 'train_data_part_'
+num_parts = 10
+
+# Connect to Azure Blob Storage
+connect_str = f"DefaultEndpointsProtocol=https;AccountName={azure_account_name};AccountKey={azure_account_key};EndpointSuffix=core.windows.net"
+blob_service_client = BlobServiceClient.from_connection_string(connect_str)
+container_client = blob_service_client.get_container_client(container_name)
+
+# Initialize DMatrix and Model (XGBoost supports incremental via update)
+dtrain = None
+model = None
+for part in range(1, num_parts + 1):
+    blob_name = f"{blob_prefix}{part}.csv"
+    blob_client = container_client.get_blob_client(blob_name)
+    temp_file = f"temp_data_part_{part}.csv"
+    
+    with open(temp_file, "wb") as f:
+        download_stream = blob_client.download_blob()
+        f.write(download_stream.readall())
+    
+    df = pd.read_csv(temp_file)
+    part_dmatrix = xgb.DMatrix(df.drop('target', axis=1), label=df['target'])
+    
+    if dtrain is None:
+        dtrain = part_dmatrix
+    else:
+        # For large data, train incrementally
+        if model is None:
+            model = xgb.train({'objective': 'binary:logistic'}, dtrain, num_boost_round=10)
+        model = xgb.train({'objective': 'binary:logistic'}, part_dmatrix, num_boost_round=10, xgb_model=model)
+    
+    os.remove(temp_file)
+
+model.save_model('xgboost_model.json')
+print("Training complete. Model saved.")
+                    </pre>
+                </details>
+            </article>
+        </section>
+
+        <!-- Deep Learning -->
+        <section class="mb-12">
+            <h2 class="text-2xl font-semibold mb-4">Deep Learning</h2>
+            <p class="mb-4">Uses neural networks with multiple layers to learn complex patterns, ideal for large datasets like images or text.</p>
+
+            <article class="mb-8">
+                <h3 class="text-xl font-medium mb-2">Multi-Layer Perceptron (MLP)</h3>
+                <p><strong>Description:</strong> Feedforward neural network with hidden layers that learns non-linear patterns via backpropagation.</p>
+                <p><strong>Use Cases:</strong></p>
+                <ul class="list-disc pl-6">
+                    <li>Fraud Detection: Identifying suspicious transactions.</li>
+                    <li>Voice Recognition: Classifying audio commands.</li>
+                </ul>
+                <p><strong>Best Library:</strong> PyTorch</p>
+                <details class="mt-2">
+                    <summary>View Python Script</summary>
+                    <pre>
+import os
+import torch
+import torch.nn as nn
+import torch.optim as optim
+from torch.utils.data import TensorDataset, DataLoader
+from azure.storage.blob import BlobServiceClient
+import pandas as pd
+
+# Model Definition
+class MLP(nn.Module):
+    def __init__(self, input_size, hidden_size, num_classes):
+        super(MLP, self).__init__()
+        self.fc1 = nn.Linear(input_size, hidden_size)
+        self.relu = nn.ReLU()
+        self.fc2 = nn.Linear(hidden_size, num_classes)
+
+    def forward(self, x):
+        out = self.fc1(x)
+        out = self.relu(out)
+        out = self.fc2(out)
+        return out
+
+# Azure Variables (Modify for actual use)
+azure_account_name = 'your_storage_account_name'
+azure_account_key = 'your_storage_account_key'
+container_name = 'your_container_name'
+blob_prefix = 'train_data_part_'
+num_parts = 10
+
+# Connect to Azure Blob Storage
+connect_str = f"DefaultEndpointsProtocol=https;AccountName={azure_account_name};AccountKey={azure_account_key};EndpointSuffix=core.windows.net"
+blob_service_client = BlobServiceClient.from_connection_string(connect_str)
+container_client = blob_service_client.get_container_client(container_name)
+
+# Initialize Model
+input_size = 10  # Example; adjust
+hidden_size = 64
+num_classes = 2
+model = MLP(input_size, hidden_size, num_classes)
+optimizer = optim.Adam(model.parameters(), lr=0.001)
+criterion = nn.CrossEntropyLoss()
+
+# Train Sequentially
+for part in range(1, num_parts + 1):
+    blob_name = f"{blob_prefix}{part}.csv"
+    blob_client = container_client.get_blob_client(blob_name)
+    temp_file = f"temp_data_part_{part}.csv"
+    
+    with open(temp_file, "wb") as f:
+        download_stream = blob_client.download U.S. Open blob()
+        f.write(download_stream.readall())
+    
+    df = pd.read_csv(temp_file)
+    X = torch.tensor(df.drop('target', axis=1).values, dtype=torch.float32)
+    y = torch.tensor(df['target'].values, dtype=torch.long)
+    
+    dataset = TensorDataset(X, y)
+    loader = DataLoader(dataset, batch_size=32, shuffle=True)
+    
+    model.train()
+    for epoch in range(10):
+        for batch_x, batch_y in loader:
+            optimizer.zero_grad()
+            output = model(batch_x)
+            loss = criterion(output, batch_y)
+            loss.backward()
+            optimizer.step()
+    
+    os.remove(temp_file)
+
+torch.save(model.state_dict(), 'mlp_model.pth')
+print("Training complete. Model saved.")
+                    </pre>
+                </details>
+            </article>
+
+            <article class="mb-8">
+                <h3 class="text-xl font-medium mb-2">Convolutional Neural Network (CNN)</h3>
+                <p><strong>Description:</strong> Uses convolutional layers to extract spatial features from grid-like data (e.g., images).</p>
+                <p><strong>Use Cases:</strong></p>
+                <ul class="list-disc pl-6">
+                    <li>Autonomous Vehicles: Detecting objects in road images.</li>
+                    <li>Healthcare: Analyzing X-rays for pneumonia.</li>
+                </ul>
+                <p><strong>Best Library:</strong> PyTorch</p>
+                <details class="mt-2">
+                    <summary>View Python Script</summary>
+                    <pre>
+import os
+import torch
+import torch.nn as nn
+import torch.optim as optim
+from torch.utils.data import TensorDataset, DataLoader
+from azure.storage.blob import BlobServiceClient
+import pandas as pd
+import numpy as np
+
+# Model Definition (Assume data reshaped to image-like, e.g., for CSV flatten images)
+class CNN(nn.Module):
+    def __init__(self, num_classes):
+        super(CNN, self).__init__()
+        self.conv1 = nn.Conv2d(1, 32, kernel_size=3)
+        self.relu = nn.ReLU()
+        self.pool = nn.MaxPool2d(2)
+        self.fc = nn.Linear(32 * 13 * 13, num_classes)  # Adjust for shape
+
+    def forward(self, x):
+        out = self.conv1(x)
+        out = self.relu(out)
+        out = self.pool(out)
+        out = out.view(out.size(0), -1)
+        out = self.fc(out)
+        return out
+
+# Azure Variables (Modify for actual use)
+azure_account_name = 'your_storage_account_name'
+azure_account_key = 'your_storage_account_key'
+container_name = 'your_container_name'
+blob_prefix = 'train_data_part_'
+num_parts = 10
+
+# Connect to Azure Blob Storage
+connect_str = f"DefaultEndpointsProtocol=https;AccountName={azure_account_name};AccountKey={azure_account_key};EndpointSuffix=core.windows.net"
+blob_service_client = BlobServiceClient.from_connection_string(connect_str)
+container_client = blob_service_client.get_container_client(container_name)
+
+num_classes = 2
+model = CNN(num_classes)
+optimizer = optim.Adam(model.parameters(), lr=0.001)
+criterion = nn.CrossEntropyLoss()
+
+# Train Sequentially (Assume X reshaped to [batch, 1, 28, 28] for example)
+for part in range(1, num_parts + 1):
+    blob_name = f"{blob_prefix}{part}.csv"
+    blob_client = container_client.get_blob_client(blob_name)
+    temp_file = f"temp_data_part_{part}.csv"
+    
+    with open(temp_file, "wb") as f:
+        download_stream = blob_client.download_blob()
+        f.write(download_stream.readall())
+    
+    df = pd.read_csv(temp_file)
+    X = df.drop('target', axis=1).values.reshape(-1, 1, 28, 28)  # Example reshape
+    y = df['target'].values
+    X = torch.tensor(X, dtype=torch.float32)
+    y = torch.tensor(y, dtype=torch.long)
+    
+    dataset = TensorDataset(X, y)
+    loader = DataLoader(dataset, batch_size=32, shuffle=True)
+    
+    model.train()
+    for epoch in range(10):
+        for batch_x, batch_y in loader:
+            optimizer.zero_grad()
+            output = model(batch_x)
+            loss = criterion(output, batch_y)
+            loss.backward()
+            optimizer.step()
+    
+    os.remove(temp_file)
+
+torch.save(model.state_dict(), 'cnn_model.pth')
+print("Training complete. Model saved.")
+                    </pre>
+                </details>
+            </article>
+
+            <article class="mb-8">
+                <h3 class="text-xl font-medium mb-2">Long Short-Term Memory (LSTM)</h3>
+                <p><strong>Description:</strong> Recurrent neural network variant that handles long-term dependencies in sequential data.</p>
+                <p><strong>Use Cases:</strong></p>
+                <ul class="list-disc pl-6">
+                    <li>Natural Language Processing: Machine translation.</li>
+                    <li>Time-Series Forecasting: Predicting energy consumption.</li>
+                </ul>
+                <p><strong>Best Library:</strong> PyTorch</p>
+                <details class="mt-2">
+                    <summary>View Python Script</summary>
+                    <pre>
+import os
+import torch
+import torch.nn as nn
+import torch.optim as optim
+from torch.utils.data import TensorDataset, DataLoader
+from azure.storage.blob import BlobServiceClient
+import pandas as pd
+import numpy as np
+
+# Model Definition (Assume sequence data; X shaped [batch, seq_len, features])
+class LSTM(nn.Module):
+    def __init__(self, input_size, hidden_size, num_classes):
+        super(LSTM, self).__init__()
+        self.lstm = nn.LSTM(input_size, hidden_size, batch_first=True)
+        self.fc = nn.Linear(hidden_size, num_classes)
+
+    def forward(self, x):
+        out, _ = self.lstm(x)
+        out = self.fc(out[:, -1, :])
+        return out
+
+# Azure Variables (Modify for actual use)
+azure_account_name = 'your_storage_account_name'
+azure_account_key = 'your_storage_account_key'
+container_name = 'your_container_name'
+blob_prefix = 'train_data_part_'
+num_parts = 10
+
+# Connect to Azure Blob Storage
+connect_str = f"DefaultEndpointsProtocol=https;AccountName={azure_account_name};AccountKey={azure_account_key};EndpointSuffix=core.windows.net"
+blob_service_client = BlobServiceClient.from_connection_string(connect_str)
+container_client = blob_service_client.get_container_client(container_name)
+
+input_size = 1
+hidden_size = 64
+num_classes = 2
+model = LSTM(input_size, hidden_size, num_classes)
+optimizer = optim.Adam(model.parameters(), lr=0.001)
+criterion = nn.CrossEntropyLoss()
+
+# Train Sequentially
+for part in range(1, num_parts + 1):
+    blob_name = f"{blob_prefix}{part}.csv"
+    blob_client = container_client.get_blob_client(blob_name)
+    temp_file = f"temp_data_part_{part}.csv"
+    
+    with open(temp_file, "wb") as f:
+        download_stream = blob_client.download_blob()
+        f.write(download_stream.readall())
+    
+    df = pd.read_csv(temp_file)
+    # Assume features are sequences; example reshape
+    X = df.drop('target', axis=1).values.reshape(-1, 10, input_size)  # seq_len=10
+    y = df['target'].values
+    X = torch.tensor(X, dtype=torch.float32)
+    y = torch.tensor(y, dtype=torch.long)
+    
+    dataset = TensorDataset(X, y)
+    loader = DataLoader(dataset, batch_size=32, shuffle=True)
+    
+    model.train()
+    for epoch in range(10):
+        for batch_x, batch_y in loader:
+            optimizer.zero_grad()
+            output = model(batch_x)
+            loss = criterion(output, batch_y)
+            loss.backward()
+            optimizer.step()
+    
+    os.remove(temp_file)
+
+torch.save(model.state_dict(), 'lstm_model.pth')
+print("Training complete. Model saved.")
+                    </pre>
+                </details>
+            </article>
+
+            <article class="mb-8">
+                <h3 class="text-xl font-medium mb-2">Transformer</h3>
+                <p><strong>Description:</strong> Attention-based model that processes sequences in parallel, excelling in long-range dependencies.</p>
+                <p><strong>Use Cases:</strong></p>
+                <ul class="list-disc pl-6">
+                    <li>NLP: Generating text with models like GPT.</li>
+                    <li>Search Engines: Improving query understanding.</li>
+                </ul>
+                <p><strong>Best Library:</strong> transformers (Hugging Face)</p>
+                <details class="mt-2">
+                    <summary>View Python Script</summary>
+                    <pre>
+import os
+from transformers import BertForSequenceClassification, BertTokenizer, Trainer, TrainingArguments
+from datasets import Dataset
+from azure.storage.blob import BlobServiceClient
+import pandas as pd
+
+# Note: For text data; assume CSV with 'text' and 'target' columns.
+
+# Azure Variables (Modify for actual use)
+azure_account_name = 'your_storage_account_name'
+azure_account_key = 'your_storage_account_key'
+container_name = 'your_container_name'
+blob_prefix = 'train_data_part_'
+num_parts = 10
+
+# Connect to Azure Blob Storage
+connect_str = f"DefaultEndpointsProtocol=https;AccountName={azure_account_name};AccountKey={azure_account_key};EndpointSuffix=core.windows.net"
+blob_service_client = BlobServiceClient.from_connection_string(connect_str)
+container_client = blob_service_client.get_container_client(container_name)
+
+# Accumulate Data (Hugging Face Trainer handles batches internally)
+df_all = []
+for part in range(1, num_parts + 1):
+    blob_name = f"{blob_prefix}{part}.csv"
+    blob_client = container_client.get_blob_client(blob_name)
+    temp_file = f"temp_data_part_{part}.csv"
+    
+    with open(temp_file, "wb") as f:
+        download_stream = blob_client.download_blob()
+        f.write(download_stream.readall())
+    
+    df = pd.read_csv(temp_file)
+    df_all.append(df)
+    
+    os.remove(temp_file)
+
+df = pd.concat(df_all)
+dataset = Dataset.from_pandas(df.rename(columns={'target': 'labels'}))
+
+# Tokenize
+tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+def tokenize(batch):
+    return tokenizer(batch['text'], padding=True, truncation=True)
+
+dataset = dataset.map(tokenize, batched=True)
+
+# Model and Trainer
+model = BertForSequenceClassification.from_pretrained('bert-base-uncased', num_labels=2)
+training_args = TrainingArguments(output_dir='./results', num_train_epochs=3, per_device_train_batch_size=16)
+trainer = Trainer(model=model, args=training_args, train_dataset=dataset)
+
+trainer.train()
+trainer.save_model('transformer_model')
+print("Training complete. Model saved.")
+                    </pre>
+                </details>
+            </article>
+        </section>
+
+        <!-- Reinforcement Learning -->
+        <section class="mb-12">
+            <h2 class="text-2xl font-semibold mb-4">Reinforcement Learning</h2>
+            <p class="mb-4">Algorithms that learn by interacting with an environment, optimizing actions based on rewards.</p>
+
+            <article class="mb-8">
+                <h3 class="text-xl font-medium mb-2">Deep Q-Network (DQN)</h3>
+                <p><strong>Description:</strong> Combines Q-learning with deep neural networks to approximate action values.</p>
+                <p><strong>Use Cases:</strong></p>
+                <ul class="list-disc pl-6">
+                    <li>Gaming: Training agents to play Atari games.</li>
+                    <li>Robotics: Optimizing robot control policies.</li>
+                </ul>
+                <p><strong>Best Library:</strong> stable-baselines3</p>
+                <details class="mt-2">
+                    <summary>View Python Script</summary>
+                    <pre>
+import os
+import gym  # Assume environment like CartPole; for custom, load data accordingly
+from stable_baselines3 import DQN
+from stable_baselines3.common.vec_env import DummyVecEnv
+from azure.storage.blob import BlobServiceClient
+
+# Note: RL typically uses environments, not static data. Here, assume standard env; for large replay, adjust buffer.
+
+# Azure Variables (Modify for actual use) - Not directly used for data, but placeholder for custom setups
+azure_account_name = 'your_storage_account_name'
+azure_account_key = 'your_storage_account_key'
+container_name = 'your_container_name'
+
+# Connect if needed (e.g., for saving; skipped for simplicity)
+
+# Environment
+env = DummyVecEnv([lambda: gym.make('CartPole-v1')])  # Example env
+
+# Model
+model = DQN('MlpPolicy', env, verbose=1)
+
+# Train (RL trains via episodes, not splits; for large, increase timesteps)
+model.learn(total_timesteps=10000)
+
+model.save('dqn_model')
+print("Training complete. Model saved.")
+                    </pre>
+                </details>
+            </article>
+        </section>
+    </main>
+
+    <footer class="bg-gray-800 text-white py-4">
+        <div class="container mx-auto px-4 text-center">
+            <p>Generated for educational purposes. Modify Azure variables for actual use.</p>
+        </div>
+    </footer>
+</body>
+</html>
