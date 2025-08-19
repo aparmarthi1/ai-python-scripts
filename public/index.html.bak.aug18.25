@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AI Python Solutions offers Python scripts for secure, locally installed LLMs and cloud database migration to automate tasks and ensure data privacy.">
+    <meta name="keywords" content="AI, LLMs, Python, data security, automation, open-source, Oracle Exadata, Azure, database migration">
+    <meta name="author" content="AI Python Solutions">
+    <title>AI Python Solutions - Secure, Local AI with LLMs</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <header class="bg-blue-600 text-white py-6 text-center">
+        <div class="container mx-auto px-4">
+            <h1 class="text-3xl font-bold">Welcome to AI Python Solutions</h1>
+            <nav class="mt-4">
+                <a href="/index.html" class="text-white underline mx-4">Home</a>
+                <a href="https://github.com/aparmarthi1/ai-python-scripts" class="text-white underline mx-4">GitHub</a>
+            </nav>
+        </div>
+    </header>
+    <div class="container mx-auto px-4 py-12">
+        <div class="bg-white p-6 rounded-lg shadow-md" role="main">
+            <h2 class="text-2xl font-semibold mb-4 text-gray-800">Explore AI Solutions</h2>
+            <p class="text-gray-700 mb-4 text-lg">At <a href="https://ai-python-solutions.com" class="text-blue-500 hover:text-blue-700">AI Python Solutions</a>, we provide open-source Python scripts to empower businesses and individuals with secure, cost-effective AI solutions. Our tools leverage locally installed Large Language Models (LLMs) and cloud database migration strategies to automate tasks, ensure data privacy, and drive innovation. Explore our resources below to learn about AI’s impact, access our scripts, and implement advanced solutions tailored to your needs.</p>
+
+            <h3 class="text-xl font-semibold mb-4 mt-6 text-gray-800">AI Insights</h3>
+            <ul class="list-disc pl-6 text-gray-700 mb-4 text-lg">
+                <li class="mb-2"><a href="/ai_revolution.html" class="text-blue-500 hover:text-blue-700">The AI Revolution: Past Achievements and Future Transformations (2022–2030)</a> – Discover how AI has reshaped industries and what to expect in the next five years, with insights into banking, insurance, retail, and more.</li>
+                <li class="mb-2"><a href="/ai_infrastructure_essay.html" class="text-blue-500 hover:text-blue-700">Building AI Infrastructure: A Comprehensive Guide</a> – Learn how to design and deploy AI infrastructure for large and small companies, leveraging cloud platforms and best practices.</li>
+                <li class="mb-2"><a href="/responsible_ai_guidelines.html" class="text-blue-500 hover:text-blue-700">Microsoft’s Guidelines for Responsible AI on Azure</a> – Discover Microsoft’s principles and practices for building ethical AI solutions on Azure, with examples.</li>
+                <li class="mb-2"><a href="/local_llm_model.html" class="text-blue-500 hover:text-blue-700">Leveraging Free Locally Installed LLMs for AI Applications</a> – Learn why locally installed LLMs offer unmatched security, customization, and cost efficiency, with practical guidance on getting started.</li>
+                <li class="mb-2"><a href="/ai_tools.html" class="text-blue-500 hover:text-blue-700">Professionally Used AI Tools and Integration</a> – Discover top AI tools, their professional applications, and how to integrate them into powerful agent tools.</li>
+            </ul>
+
+            <h3 class="text-xl font-semibold mb-4 mt-6 text-gray-800">Python AI Solutions Scripts</h3>
+            <ul class="list-disc pl-6 text-gray-700 mb-4 text-lg">
+                <li class="mb-2"><a href="/summary.html" class="text-blue-500 hover:text-blue-700">Generate Text Summaries from Files Using Locally Installed LLMs</a> – Create concise summaries of text documents with a Python script powered by local LLMs.</li>
+                <li class="mb-2"><a href="/inconsistency_finder.html" class="text-blue-500 hover:text-blue-700">Detect Inconsistencies in Files Using Locally Installed LLMs</a> – Identify discrepancies in documents using a Python script with local LLMs.</li>
+                <li class="mb-2"><a href="/doc_based_chatbot.html" class="text-blue-500 hover:text-blue-700">Document-Based Chatbot Powered by Locally Installed LLMs</a> – Build a chatbot that answers questions based on provided documents using local LLMs.</li>
+                <li class="mb-2"><a href="/postgres_chatbot.html" class="text-blue-500 hover:text-blue-700">Chatbot for Azure PostgreSQL Database Using Locally Installed LLMs</a> – Query and interact with Azure PostgreSQL databases through an AI-powered chatbot.</li>
+                <li class="mb-2"><a href="/oracledb_chatbot.html" class="text-blue-500 hover:text-blue-700">Chatbot for OCI Oracle Database Using Locally Installed LLMs</a> – Engage with OCI Oracle databases using a chatbot driven by local LLMs.</li>
+                <li class="mb-2"><a href="/meeting_scheduler_chatbot.html" class="text-blue-500 hover:text-blue-700">Meeting Scheduler Chatbot Using Azure and DeepSeek API</a> – Schedule and query meetings with a web-based chatbot powered by Azure and DeepSeek API.</li>
+                <li class="mb-2"><a href="/pipeline.html" class="text-blue-500 hover:text-blue-700">Real-Time Sales Data Analytics Pipeline on Azure</a> – Build a data pipeline for real-time sales analytics using Azure Data Factory, Synapse, Databricks, and more.</li>
+                <li class="mb-2"><a href="/train_linear_regression_azure.html" class="text-blue-500 hover:text-blue-700">Train a Simple Linear Regression Model on Azure</a> – Train and deploy a linear regression model using Azure Machine Learning with a free account.</li>
+                <li class="mb-2"><a href="/ml_algorithms.html" class="text-blue-500 hover:text-blue-700">Machine Learning Algorithms for Industry on Azure</a> – Explore commonly used ML algorithms with Python scripts for training on Azure, including Linear Regression, Random Forest, CNN, and more.</li>
+            </ul>
+
+            <h3 class="text-xl font-semibold mb-4 mt-6 text-gray-800">Cloud Database Migration</h3>
+            <ul class="list-disc pl-6 text-gray-700 mb-4 text-lg">
+                <li class="mb-2"><a href="/exadata_migration_to_azure_guide.html" class="text-blue-500 hover:text-blue-700">Migrating Oracle Exadata to Azure: A Comprehensive Guide</a> – A detailed guide for seamlessly migrating Oracle Exadata databases to Azure.</li>
+                <li class="mb-2"><a href="https://raw.githubusercontent.com/aparmarthi1/ai-python-scripts/main/scripts/zdm_automation.py" class="text-blue-500 hover:text-blue-700">Zero Downtime Migration Automation Script</a> – Automate Oracle database migrations with minimal disruption using this Python script.</li>
+                <li class="mb-2"><a href="https://raw.githubusercontent.com/aparmarthi1/ai-python-scripts/main/scripts/exadata_data_validation.py" class="text-blue-500 hover:text-blue-700">Data Validation Script for Oracle Exadata Migration</a> – Ensure data integrity during Oracle Exadata migrations with this validation script.</li>
+                <li class="mb-2"><a href="/server_metrics_failure_predictor_azure_ai.html" class="text-blue-500 hover:text-blue-700">Server Failure Prediction Using Azure AI Foundry and GPT-4o-mini</a> – Predict server failures with a Python script leveraging Azure AI Foundry and OpenAI’s GPT-4o-mini LLM.</li>
+            </ul>
+
+            <p class="text-gray-700 mb-4 text-lg">Visit our <a href="https://github.com/aparmarthi1/ai-python-scripts" class="text-blue-500 hover:text-blue-700">GitHub repository</a> to access these scripts and start building your AI and migration solutions today.</p>
+        </div>
+    </div>
+    <footer class="bg-gray-800 text-gray-300 py-6">
+        <div class="container mx-auto px-4 text-center">
+            <p>© 2025 AI Python Solutions. All rights reserved.</p>
+            <p class="mt-2">Hosted at <a href="https://ai-python-solutions.com" class="underline">ai-python-solutions.com</a></p>
+        </div>
+    </footer>
+</body>
+</html>
