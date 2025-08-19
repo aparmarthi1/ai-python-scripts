@@ -3,236 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PySpark ETL Project on Azure: Batch and Streaming Guide</title>
+    <meta name="description" content="AI Python Solutions offers Python scripts for secure, locally installed LLMs and cloud database migration to automate tasks and ensure data privacy.">
+    <meta name="keywords" content="AI, LLMs, Python, data security, automation, open-source, Oracle Exadata, Azure, database migration">
+    <meta name="author" content="AI Python Solutions">
+    <title>AI Python Solutions - Secure, Local AI with LLMs</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { font-family: Arial, sans-serif; line-height: 1.6; margin: 20px; }
-        h1, h2, h3 { color: #333; }
-        pre { background: #f4f4f4; padding: 10px; border: 1px solid #ddd; overflow-x: auto; }
-        code { font-family: Consolas, monospace; }
-        .section { margin-bottom: 20px; }
+        body {
+            font-family: 'Inter', sans-serif;
+        }
     </style>
 </head>
-<body>
-    <h1>PySpark ETL Project on Azure: Batch and Streaming Guide</h1>
-    <p>This HTML page compiles the entire guide for creating a PySpark ETL project using Azure's free account. It includes infrastructure setup, sample data, Python scripts for batch processing, and explanations for batch vs. streaming in industry use cases. All scripts are included inline for self-containment.</p>
+<body class="bg-gray-100">
+    <header class="bg-blue-600 text-white py-6 text-center">
+        <div class="container mx-auto px-4">
+            <h1 class="text-3xl font-bold">Welcome to AI Python Solutions</h1>
+            <nav class="mt-4">
+                <a href="/index.html" class="text-white underline mx-4">Home</a>
+                <a href="https://github.com/aparmarthi1/ai-python-scripts" class="text-white underline mx-4">GitHub</a>
+            </nav>
+        </div>
+    </header>
+    <div class="container mx-auto px-4 py-12">
+        <div class="bg-white p-6 rounded-lg shadow-md" role="main">
+            <h2 class="text-2xl font-semibold mb-4 text-gray-800">Explore AI Solutions</h2>
+            <p class="text-gray-700 mb-4 text-lg">At <a href="https://ai-python-solutions.com" class="text-blue-500 hover:text-blue-700">AI Python Solutions</a>, we provide open-source Python scripts to empower businesses and individuals with secure, cost-effective AI solutions. Our tools leverage locally installed Large Language Models (LLMs) and cloud database migration strategies to automate tasks, ensure data privacy, and drive innovation. Explore our resources below to learn about AI’s impact, access our scripts, and implement advanced solutions tailored to your needs.</p>
 
-    <div class="section">
-        <h2>Azure Infrastructure Setup for Medallion Architecture (Bronze, Silver, Gold)</h2>
-        <p>In data warehousing and big data pipelines, the medallion architecture is commonly used to organize data lakes into layers:</p>
-        <ul>
-            <li><strong>Bronze Layer</strong>: Raw, unprocessed data (e.g., ingested CSVs as-is). Stored in Azure Data Lake Storage Gen2 containers/folders for immutability and auditing.</li>
-            <li><strong>Silver Layer</strong>: Cleaned, transformed data (e.g., after handling missing values, filtering, schema enforcement). Optimized for querying with Parquet format and partitioning.</li>
-            <li><strong>Gold Layer</strong>: Aggregated, business-ready data (e.g., after joins, aggregations). Used for analytics, reporting, or ML.</li>
-        </ul>
-        <p>To support this for large datasets:</p>
-        <ul>
-            <li>Create an <strong>Azure Resource Group</strong> (free) to organize resources.</li>
-            <li>Create an <strong>Azure Storage Account with Data Lake Storage Gen2 enabled</strong> (free tier: 5 GB storage for 12 months; scales to PB cheaply).</li>
-            <li>Within the Storage Account, create containers or folders for <strong>bronze</strong>, <strong>silver</strong>, and <strong>gold</strong> (containers are like buckets; folders for sub-organization).</li>
-            <li>For running PySpark scripts on large data without local execution: Use <strong>Azure Databricks</strong> (free Community Edition or 14-day trial for clusters). It provides managed Spark environments, auto-scaling for TB+ data, and integration with Data Lake.</li>
-        </ul>
-        <p>All creation uses Azure free account. No local runs—scripts run in Databricks notebooks/jobs.</p>
-        <h3>Step 1: Create Supporting Azure Infrastructure</h3>
-        <p>Use Azure Portal or CLI (install Azure CLI if needed). Run these in a cloud shell or terminal after <code>az login</code>.</p>
-        <pre><code># Variables (customize)
-RESOURCE_GROUP="data-lake-demo-rg"
-LOCATION="eastus"  # Your region
-STORAGE_ACCOUNT="datalakedemo$(date +%s)"  # Unique
-FILE_SYSTEM="data-lake"  # Root container for Data Lake
+            <h3 class="text-xl font-semibold mb-4 mt-6 text-gray-800">AI Insights</h3>
+            <ul class="list-disc pl-6 text-gray-700 mb-4 text-lg">
+                <li class="mb-2"><a href="/ai_revolution.html" class="text-blue-500 hover:text-blue-700">The AI Revolution: Past Achievements and Future Transformations (2022–2030)</a> – Discover how AI has reshaped industries and what to expect in the next five years, with insights into banking, insurance, retail, and more.</li>
+                <li class="mb-2"><a href="/ai_infrastructure_essay.html" class="text-blue-500 hover:text-blue-700">Building AI Infrastructure: A Comprehensive Guide</a> – Learn how to design and deploy AI infrastructure for large and small companies, leveraging cloud platforms and best practices.</li>
+                <li class="mb-2"><a href="/responsible_ai_guidelines.html" class="text-blue-500 hover:text-blue-700">Microsoft’s Guidelines for Responsible AI on Azure</a> – Discover Microsoft’s principles and practices for building ethical AI solutions on Azure, with examples.</li>
+                <li class="mb-2"><a href="/local_llm_model.html" class="text-blue-500 hover:text-blue-700">Leveraging Free Locally Installed LLMs for AI Applications</a> – Learn why locally installed LLMs offer unmatched security, customization, and cost efficiency, with practical guidance on getting started.</li>
+                <li class="mb-2"><a href="/ai_tools.html" class="text-blue-500 hover:text-blue-700">Professionally Used AI Tools and Integration</a> – Discover top AI tools, their professional applications, and how to integrate them into powerful agent tools.</li>
+            </ul>
 
-# Create Resource Group
-az group create --name $RESOURCE_GROUP --location $LOCATION
+            <h3 class="text-xl font-semibold mb-4 mt-6 text-gray-800">Python AI Solutions Scripts</h3>
+            <ul class="list-disc pl-6 text-gray-700 mb-4 text-lg">
+                <li class="mb-2"><a href="/summary.html" class="text-blue-500 hover:text-blue-700">Generate Text Summaries from Files Using Locally Installed LLMs</a> – Create concise summaries of text documents with a Python script powered by local LLMs.</li>
+                <li class="mb-2"><a href="/inconsistency_finder.html" class="text-blue-500 hover:text-blue-700">Detect Inconsistencies in Files Using Locally Installed LLMs</a> – Identify discrepancies in documents using a Python script with local LLMs.</li>
+                <li class="mb-2"><a href="/doc_based_chatbot.html" class="text-blue-500 hover:text-blue-700">Document-Based Chatbot Powered by Locally Installed LLMs</a> – Build a chatbot that answers questions based on provided documents using local LLMs.</li>
+                <li class="mb-2"><a href="/postgres_chatbot.html" class="text-blue-500 hover:text-blue-700">Chatbot for Azure PostgreSQL Database Using Locally Installed LLMs</a> – Query and interact with Azure PostgreSQL databases through an AI-powered chatbot.</li>
+                <li class="mb-2"><a href="/oracledb_chatbot.html" class="text-blue-500 hover:text-blue-700">Chatbot for OCI Oracle Database Using Locally Installed LLMs</a> – Engage with OCI Oracle databases using a chatbot driven by local LLMs.</li>
+                <li class="mb-2"><a href="/meeting_scheduler_chatbot.html" class="text-blue-500 hover:text-blue-700">Meeting Scheduler Chatbot Using Azure and DeepSeek API</a> – Schedule and query meetings with a web-based chatbot powered by Azure and DeepSeek API.</li>
+                <li class="mb-2"><a href="/pipeline.html" class="text-blue-500 hover:text-blue-700">Real-Time Sales Data Analytics Pipeline on Azure</a> – Build a data pipeline for real-time sales analytics using Azure Data Factory, Synapse, Databricks, and more.</li>
+                <li class="mb-2"><a href="/train_linear_regression_azure.html" class="text-blue-500 hover:text-blue-700">Train a Simple Linear Regression Model on Azure</a> – Train and deploy a linear regression model using Azure Machine Learning with a free account.</li>
+                <li class="mb-2"><a href="/ml_algorithms.html" class="text-blue-500 hover:text-blue-700">Machine Learning Algorithms for Industry on Azure</a> – Explore commonly used ML algorithms with Python scripts for training on Azure, including Linear Regression, Random Forest, CNN, and more.</li>
+                <li class="mb-2"><a href="/clean_and_tranform_data_wiht_pyspark_on_azure.html" class="text-blue-500 hover:text-blue-700">Clean and Transform Data with PySpark on Azure</a> – Implement a batch ETL pipeline using PySpark on Azure for large-scale data processing in a medallion architecture.</li>
+            </ul>
 
-# Create Storage Account with Data Lake Gen2
-az storage account create --name $STORAGE_ACCOUNT --resource-group $RESOURCE_GROUP --location $LOCATION --sku Standard_LRS --kind StorageV2 --hierarchical-namespace true
+            <h3 class="text-xl font-semibold mb-4 mt-6 text-gray-800">Cloud Database Migration</h3>
+            <ul class="list-disc pl-6 text-gray-700 mb-4 text-lg">
+                <li class="mb-2"><a href="/exadata_migration_to_azure_guide.html" class="text-blue-500 hover:text-blue-700">Migrating Oracle Exadata to Azure: A Comprehensive Guide</a> – A detailed guide for seamlessly migrating Oracle Exadata databases to Azure.</li>
+                <li class="mb-2"><a href="https://raw.githubusercontent.com/aparmarthi1/ai-python-scripts/main/scripts/zdm_automation.py" class="text-blue-500 hover:text-blue-700">Zero Downtime Migration Automation Script</a> – Automate Oracle database migrations with minimal disruption using this Python script.</li>
+                <li class="mb-2"><a href="https://raw.githubusercontent.com/aparmarthi1/ai-python-scripts/main/scripts/exadata_data_validation.py" class="text-blue-500 hover:text-blue-700">Data Validation Script for Oracle Exadata Migration</a> – Ensure data integrity during Oracle Exadata migrations with this validation script.</li>
+                <li class="mb-2"><a href="/server_metrics_failure_predictor_azure_ai.html" class="text-blue-500 hover:text-blue-700">Server Failure Prediction Using Azure AI Foundry and GPT-4o-mini</a> – Predict server failures with a Python script leveraging Azure AI Foundry and OpenAI’s GPT-4o-mini LLM.</li>
+            </ul>
 
-# Get Account Key
-ACCOUNT_KEY=$(az storage account keys list --resource-group $RESOURCE_GROUP --account-name $STORAGE_ACCOUNT --query "[0].value" -o tsv)
-
-# Create File System (root container) and folders for layers
-az storage fs create --name $FILE_SYSTEM --account-name $STORAGE_ACCOUNT --account-key $ACCOUNT_KEY
-az storage fs directory create --name "bronze" -f $FILE_SYSTEM --account-name $STORAGE_ACCOUNT --account-key $ACCOUNT_KEY
-az storage fs directory create --name "silver" -f $FILE_SYSTEM --account-name $STORAGE_ACCOUNT --account-key $ACCOUNT_KEY
-az storage fs directory create --name "gold" -f $FILE_SYSTEM --account-name $STORAGE_ACCOUNT --account-key $ACCOUNT_KEY</code></pre>
-        <p><strong>Azure Databricks Setup</strong>: In Azure Portal, create a Databricks workspace (link to your Storage Account). Use CLI:</p>
-        <pre><code>az databricks workspace create --name "etl-databricks" --resource-group $RESOURCE_GROUP --location $LOCATION --sku standard</code></pre>
-        <p>In Databricks UI: Create a cluster (e.g., single-node for demo; auto-scales for large data). Mount the Data Lake (use DBFS or direct ABFS paths).</p>
+            <p class="text-gray-700 mb-4 text-lg">Visit our <a href="https://github.com/aparmarthi1/ai-python-scripts" class="text-blue-500 hover:text-blue-700">GitHub repository</a> to access these scripts and start building your AI and migration solutions today.</p>
+        </div>
     </div>
-
-    <div class="section">
-        <h2>Step 2: Create Small Sample Datasets</h2>
-        <p>For demo (including join):</p>
-        <ul>
-            <li><strong>sales_data.csv</strong> (Bronze: Raw sales records):</li>
-        </ul>
-        <pre><code>order_id,product,quantity,price,customer_id,date
-1,Laptop,2,1000.50,101,2023-01-15
-2,Phone,1,500.00,102,2023-01-16
-3,Laptop,1,1000.50,101,2023-02-20
-4,Tablet,3,,103,2023-02-21  # Missing price
-5,Phone,2,500.00,102,2023-03-10
-6,Tablet,,300.00,104,2023-03-11  # Missing quantity</code></pre>
-        <ul>
-            <li><strong>customers_data.csv</strong> (Bronze: Customer details for join):</li>
-        </ul>
-        <pre><code>customer_id,name,region,loyalty_score
-101,Alice,East,85
-102,Bob,West,90
-103,Charlie,North,75
-104,David,South,  # Missing score</code></pre>
-        <p>Save these as CSV files on your machine temporarily.</p>
-    </div>
-
-    <div class="section">
-        <h2>Step 3: Upload Datasets to Bronze Layer</h2>
-        <p>Upload to Azure Data Lake (bronze folder) using Azure CLI or Portal (Storage Explorer). No local processing—raw ingest.</p>
-        <pre><code># Upload sales_data.csv to bronze
-az storage fs file upload --account-name $STORAGE_ACCOUNT --account-key $ACCOUNT_KEY --file-system $FILE_SYSTEM --path "bronze/sales_data.csv" --source sales_data.csv
-
-# Upload customers_data.csv to bronze
-az storage fs file upload --account-name $STORAGE_ACCOUNT --account-key $ACCOUNT_KEY --file-system $FILE_SYSTEM --path "bronze/customers_data.csv" --source customers_data.csv</code></pre>
-        <p><strong>When/Where</strong>: Do this after infrastructure creation, before running scripts. Upload to <code>/bronze/</code> for raw landing zone. In production pipelines (e.g., Azure Data Factory), automate ingestion from sources like APIs/FTP.</p>
-    </div>
-
-    <div class="section">
-        <h2>Step 4: PySpark ETL Script Template for Batch Data Pipeline</h2>
-        <p>This script uses <strong>Spark SQL</strong> primarily for SQL-like commands to manage large datasets. Run in Azure Databricks (upload as a notebook or job). It's a template—variables for reusability.</p>
-        <p><strong>Pipeline Features</strong>:</p>
-        <ul>
-            <li><strong>Ingest (Bronze to Silver)</strong>: Read raw, enforce schema, handle missing values, filter.</li>
-            <li><strong>Transform (Silver)</strong>: Join, aggregate, conditional logic.</li>
-            <li><strong>Load (Gold)</strong>: Write partitioned Parquet for large-scale querying.</li>
-            <li><strong>Other Pipeline Essentials</strong>: Error handling (try-except), logging (print or use Databricks logging), schema validation, incremental processing (via watermarks if time-based), caching for performance on large data.</li>
-        </ul>
-        <p>For large datasets: Spark distributes processing across cluster nodes; partitioning reduces shuffle; Parquet compression saves storage/I/O.</p>
-        <p>Save as <code>data_pipeline_notebook.py</code> in Databricks.</p>
-        <pre><code>from pyspark.sql import SparkSession
-from pyspark.sql.types import StructType, StructField, IntegerType, StringType, DoubleType, DateType
-from pyspark.sql.functions import col, lit, current_timestamp
-import pyspark.sql.utils as utils  # For error handling
-
-# Configuration Variables (Template: Load from secrets/DBFS config in prod)
-AZURE_ACCOUNT_NAME = "your_storage_account_name"  # e.g., datalakedemo123
-AZURE_ACCOUNT_KEY = dbutils.secrets.get(scope="your-secret-scope", key="storage-key")  # Use Databricks secrets for security
-FILE_SYSTEM = "data-lake"
-BRONZE_PATH_SALES = f"abfss://{FILE_SYSTEM}@{AZURE_ACCOUNT_NAME}.dfs.core.windows.net/bronze/sales_data.csv"  # Note: abfss for secure access
-BRONZE_PATH_CUSTOMERS = f"abfss://{FILE_SYSTEM}@{AZURE_ACCOUNT_NAME}.dfs.core.windows.net/bronze/customers_data.csv"
-SILVER_PATH_SALES = f"abfss://{FILE_SYSTEM}@{AZURE_ACCOUNT_NAME}.dfs.core.windows.net/silver/sales_cleaned"
-SILVER_PATH_CUSTOMERS = f"abfss://{FILE_SYSTEM}@{AZURE_ACCOUNT_NAME}.dfs.core.windows.net/silver/customers_cleaned"
-GOLD_PATH = f"abfss://{FILE_SYSTEM}@{AZURE_ACCOUNT_NAME}.dfs.core.windows.net/gold/aggregated_sales"
-
-# Initialize Spark Session (Databricks handles config; add for large data: .config("spark.executor.memory", "8g"))
-spark = SparkSession.builder \
-    .appName("DataLakeETLPipeline") \
-    .getOrCreate()
-
-# Mount Data Lake if needed (Databricks-specific; optional if using direct paths)
-# dbutils.fs.mount(source=f"wasbs://{FILE_SYSTEM}@{AZURE_ACCOUNT_NAME}.blob.core.windows.net/", mount_point="/mnt/data-lake", extra_configs={f"fs.azure.account.key.{AZURE_ACCOUNT_NAME}.blob.core.windows.net": AZURE_ACCOUNT_KEY})
-
-# Step 1: Ingest and Clean Sales Data (Bronze to Silver) - Schema enforcement, missing values, filter
-# What it's doing: Reads raw CSV from bronze. Enforces schema to prevent bad data. Handles missing values (fill defaults). Filters invalid records. Writes to silver as Parquet for efficiency.
-schema_sales = StructType([
-    StructField("order_id", IntegerType(), True),
-    StructField("product", StringType(), True),
-    StructField("quantity", IntegerType(), True),
-    StructField("price", DoubleType(), True),
-    StructField("customer_id", IntegerType(), True),
-    StructField("date", StringType(), True)  # Cast to date later
-])
-try:
-    df_sales_raw = spark.read.csv(BRONZE_PATH_SALES, header=True, schema=schema_sales)
-except utils.AnalysisException as e:
-    print(f"Error ingesting sales: {e}")
-    raise
-
-df_sales_clean = df_sales_raw.na.fill({"quantity": 0, "price": 0.0}) \
-    .withColumn("date", col("date").cast(DateType())) \
-    .withColumn("ingestion_timestamp", current_timestamp()) \
-    .filter((col("quantity") > 0) & (col("price") > 0))
-
-df_sales_clean.write.mode("overwrite").partitionBy("date").parquet(SILVER_PATH_SALES)  # Partition for large data queries
-print("Sales cleaned and written to silver.")
-
-# Step 2: Ingest and Clean Customers Data (Bronze to Silver) - Similar cleaning
-# What it's doing: Reads customers CSV. Handles missing loyalty_score. Adds metadata. Writes partitioned Parquet to silver.
-schema_customers = StructType([
-    StructField("customer_id", IntegerType(), True),
-    StructField("name", StringType(), True),
-    StructField("region", StringType(), True),
-    StructField("loyalty_score", IntegerType(), True)
-])
-df_customers_raw = spark.read.csv(BRONZE_PATH_CUSTOMERS, header=True, schema=schema_customers)
-
-df_customers_clean = df_customers_raw.na.fill({"loyalty_score": 0}) \
-    .withColumn("loyalty_category", when(col("loyalty_score") >= 80, "High").otherwise("Low")) \
-    .filter(col("name").isNotNull())
-
-df_customers_clean.write.mode("overwrite").partitionBy("region").parquet(SILVER_PATH_CUSTOMERS)
-print("Customers cleaned and written to silver.")
-
-# Step 3: Transform and Aggregate with Join (Silver to Gold) - Join, aggregate, etc.
-# What it's doing: Registers silver tables as views. Uses DataFrame for join (sales + customers), aggregate (total revenue), filter (post-2023), conditional categorization. Handles large data via broadcast join if one table small. Adds error handling.
-df_sales_clean = spark.read.parquet(SILVER_PATH_SALES)
-df_customers_clean = spark.read.parquet(SILVER_PATH_CUSTOMERS)
-
-try:
-    df_joined = df_sales_clean.join(df_customers_clean, on="customer_id", how="left") \
-        .withColumn("revenue", col("quantity") * col("price")) \
-        .filter(col("date") > lit("2023-01-31"))
-
-    df_aggregated = df_joined.groupBy("product", "region") \
-        .agg(
-            sum("revenue").alias("total_revenue"),
-            avg("loyalty_score").alias("avg_loyalty"),
-            count("order_id").alias("order_count"),
-            max("date").alias("latest_date")
-        ) \
-        .filter(col("total_revenue") > 500) \
-        .withColumn("revenue_tier", when(col("total_revenue") > 2000, "Premium").otherwise("Standard")) \
-        .withColumn("process_timestamp", current_timestamp()) \
-        .orderBy(col("total_revenue").desc())
-
-    df_aggregated.write.mode("overwrite").partitionBy("product", "region").parquet(GOLD_PATH)  # Partition for warehouse queries
-    df_aggregated.show()  # Preview in Databricks
-    print("Gold layer created with aggregates.")
-except Exception as e:
-    print(f"Pipeline error: {e}")
-    # In prod: Log to Azure Monitor or retry logic
-
-# Stop Session (Databricks auto-manages)
-spark.stop()
-
-print("Pipeline Completed. Query gold layer in Databricks or Azure Synapse for analytics.")</code></pre>
-        <p><strong>Running in Databricks</strong>: Create a notebook, paste script, attach to cluster, run. For large data, schedule as job.</p>
-        <p><strong>Explanations in Script</strong>: Each step comments "What it's doing" – covers ingestion, cleaning (missing/filter), transform (join/aggregate/conditional), load (partitioned).</p>
-        <p><strong>Scalability</strong>: For TB+ data, increase cluster size; Spark optimizes distributed execution.</p>
-        <p><strong>Clean Up</strong>: <code>az group delete --name $RESOURCE_GROUP --yes</code> to avoid costs.</p>
-        <p>This is a complete, SQL-focused pipeline template. Extend with Delta Lake (for ACID transactions) by adding <code>.format("delta")</code> in writes—free in Databricks.</p>
-    </div>
-
-    <div class="section">
-        <h2>Batch Processing Confirmation</h2>
-        <p>Yes, the ETL process is a classic batch processing pipeline. Bronze: Raw ingest. Silver: Cleaning. Gold: Transformations and load.</p>
-    </div>
-
-    <div class="section">
-        <h2>Handling Data in Real Industry Use Cases</h2>
-        <p>In real-world industry projects (e.g., finance, retail, healthcare, IoT), data pipelines evolve based on needs: batch for historical analysis/cost-efficiency, streaming for real-time insights, or hybrid (unified) approaches.</p>
-        <h3>1. Batch Processing in Industry</h3>
-        <p>Common Use Cases: End-of-day financial reconciliations, inventory reporting.</p>
-        <p>Input Handling: From databases, files, APIs via ADF or Databricks Auto Loader.</p>
-        <p>Transformation: Via Spark SQL in Databricks jobs, with deduplication, joins.</p>
-        <p>Output: To Gold for querying via Power BI, exported to databases.</p>
-
-        <h3>2. Streaming Data Processing in Industry</h3>
-        <p>Streaming handles continuous data for low latency. Use Spark Structured Streaming in Databricks.</p>
-        <p>Common Use Cases: Real-time analytics, IoT, fraud detection.</p>
-        <p>Input Handling: From Event Hubs, Kafka, IoT Hub; use Auto Loader for streaming files.</p>
-        <p>Transformation: Continuous queries with filtering, joins, windowed aggregations; stateful for sessions.</p>
-        <p>Output: To Delta Tables, databases, event hubs; feed dashboards or ML models.</p>
-        <p>Key Differences: Batch is cheaper for large historical; streaming for real-time.</p>
-        <p>Tools: Databricks for processing, ADF for orchestration.</p>
-    </div>
-
+    <footer class="bg-gray-800 text-gray-300 py-6">
+        <div class="container mx-auto px-4 text-center">
+            <p>© 2025 AI Python Solutions. All rights reserved.</p>
+            <p class="mt-2">Hosted at <a href="https://ai-python-solutions.com" class="underline">ai-python-solutions.com</a></p>
+        </div>
+    </footer>
 </body>
 </html>
